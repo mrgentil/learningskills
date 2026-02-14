@@ -23,12 +23,13 @@ class SubscriptionMiddleware
         }
 
         // 1. Resolve Tenant (Initialization logic)
-        // If no tenant in session, pick the first one this user owns or belongs to
         if (!session()->has('tenant_id')) {
+            // Priority: session > owned > member
             $tenant = $user->ownedTenants()->first() ?? $user->tenants()->first();
             
             if (!$tenant) {
-                // User has no tenant/academy — redirect to pricing to subscribe
+                // User has no tenant/academy — they are truly a new platform user
+                // Only redirect to pricing if they aren't on a public academy page (handled by different routes anyway)
                 return redirect(url('/') . '#cbx-pricing');
             }
 
@@ -37,22 +38,26 @@ class SubscriptionMiddleware
 
         $tenant = Tenant::findOrFail(session('tenant_id'));
 
-        // 2. Check Tenant status
+        // 2. Check Role: If the user is just a student, they DON'T need a platform subscription
+        $tenantUser = \DB::table('tenant_user')
+            ->where('tenant_id', $tenant->id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        $isStudent = $tenantUser && $tenantUser->role === 'student';
+
+        // 3. Check Tenant status
         if (!$tenant->is_active) {
-            return redirect()->route('home')->with('error', 'Votre académie est actuellement inactive.');
+            return redirect()->route('home')->with('error', 'Cette académie est actuellement inactive.');
         }
 
-        // 3. Check Subscription status
-        // We check the owner of the tenant
-        $owner = $tenant->owner;
-
-        // Cashier check: if the owner is NOT subscribed, redirect to payment
-        // We assume 'default' subscription name
-        if (!$owner->subscribed('default')) {
-            // Note: In a real app, you might want to allow some grace period or a free plan check.
-            // If the plan is "free" (price = 0), we might skip this.
-            if ($tenant->plan && $tenant->plan->price > 0) {
-                 return redirect()->route('home')->with('error', 'Un abonnement actif est requis pour accéder au dashboard.');
+        // 4. Check Subscription status (ONLY for Academy Owners/Admins)
+        if (!$isStudent) {
+            $owner = $tenant->owner;
+            if (!$owner->subscribed('default')) {
+                if ($tenant->plan && $tenant->plan->price > 0) {
+                     return redirect()->route('home')->with('error', 'Un abonnement actif est requis pour accéder au dashboard.');
+                }
             }
         }
 

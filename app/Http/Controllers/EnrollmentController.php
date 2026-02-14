@@ -72,6 +72,8 @@ class EnrollmentController extends Controller
                 'progress' => $e->progress_percent,
                 'instructor' => 'Instructeur Académie', // Simplified for now
                 'img' => $e->course->thumbnail ?? 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400',
+                'course_slug' => $e->course->slug,
+                'academy_slug' => $e->course->tenant->slug,
             ];
         }));
     }

@@ -28,45 +28,88 @@
         media="all" />
 
     <style>
+        :root {
+            --primary: {{ isset($tenant) ? '#f59e0b' : '#ff007a' }};
+            --primary-hover: {{ isset($tenant) ? '#d97706' : '#e6006e' }};
+            --navy: #0f172a;
+        }
+
+        body {
+            font-family: 'Roboto', 'Open Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+
         .auth-card {
             background: #fff;
             padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
             margin-bottom: 50px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .cbx-form .form-control {
+            border-radius: 10px;
+            padding: 12px 15px;
+            height: auto;
+            border: 2px solid #e2e8f0;
+            transition: 0.3s;
+        }
+
+        .cbx-form .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: none;
         }
 
         .cbx-form button[type="submit"] {
-            background: #ff007a;
+            background: var(--primary);
             color: #fff;
-            font-weight: 700;
+            font-weight: 800;
             text-transform: uppercase;
-            padding: 12px;
+            padding: 15px;
             border: none;
+            border-radius: 10px;
             transition: all 0.3s;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
         .cbx-form button[type="submit"]:hover {
-            background: #e6006e;
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
         }
 
         .auth-header {
-            padding: 100px 0 50px;
-            background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            padding: 120px 0 80px;
+            background: {{ isset($tenant) ? 'var(--navy)' : 'linear-gradient(to right, #6a11cb 0%, #2575fc 100%)' }};
             color: #fff;
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: -60px;
+            position: relative;
+            z-index: 1;
         }
 
         .invalid-feedback {
-            color: #ff007a;
+            color: #ef4444;
             font-size: 13px;
             margin-top: 5px;
             display: block;
+            font-weight: 600;
         }
 
         .form-control.is-invalid {
-            border-color: #ff007a;
+            border-color: #ef4444 !important;
+        }
+
+        .uppercase {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 800;
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 8px;
+            display: block;
         }
     </style>
 </head>

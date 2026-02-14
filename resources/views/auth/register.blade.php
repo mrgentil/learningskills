@@ -5,6 +5,7 @@
 @section('content')
     <form method="POST" action="{{ route('register') }}">
         @csrf
+        <input type="hidden" name="academy_slug" value="{{ $tenant->slug ?? '' }}">
 
         <div class="form-group mb-3">
             <label for="name" class="uppercase">Nom complet</label>
@@ -54,8 +55,8 @@
             </button>
 
             <p class="text-center" style="margin-top: 20px;">
-                Vous avez déjà un compte ? <a href="{{ route('login') }}"
-                    style="color: #ff007a; font-weight: 700;">Connectez-vous
+                Vous avez déjà un compte ? <a href="{{ route('login', ['academy' => $tenant->slug ?? '']) }}"
+                    style="color: var(--primary); font-weight: 700;">Connectez-vous
                     ici</a>
             </p>
         </div>

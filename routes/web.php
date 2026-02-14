@@ -18,6 +18,12 @@ Route::get('/academy/{slug}', [App\Http\Controllers\AcademyController::class, 's
 Route::get('/academy/{slug}/courses', [App\Http\Controllers\AcademyController::class, 'courses'])->name('academy.courses');
 Route::get('/academy/{academy_slug}/course/{course_slug}', [App\Http\Controllers\AcademyController::class, 'course'])->name('course.show');
 
+// Course Player (Learning Interface)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/academy/{academy_slug}/learn/{course_slug}/{lesson_slug?}', [App\Http\Controllers\CoursePlayerController::class, 'show'])->name('course.learn');
+    Route::post('/lesson/{lesson_id}/complete', [App\Http\Controllers\CoursePlayerController::class, 'complete'])->name('lesson.complete');
+});
+
 // React SPA Catch-all (to ensure /dashboard and others work)
 Route::middleware(['auth', 'saas.active'])->group(function () {
     Route::get('/dashboard/my-courses', function() { return view('dashboard'); })->name('dashboard.my-courses');

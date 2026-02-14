@@ -5,6 +5,7 @@
 @section('content')
     <form method="POST" action="{{ route('login') }}">
         @csrf
+        <input type="hidden" name="academy_slug" value="{{ $tenant->slug ?? '' }}">
 
         <div class="form-group mb-3">
             <label for="email" class="uppercase">Adresse e-mail</label>
@@ -46,15 +47,16 @@
 
             @if (Route::has('password.request'))
                 <p class="text-center" style="margin-top: 15px;">
-                    <a class="btn-link" href="{{ route('password.request') }}" style="color: #ff007a;">
+                    <a class="btn-link" href="{{ route('password.request', ['academy' => $tenant->slug ?? '']) }}"
+                        style="color: var(--primary);">
                         Mot de passe oublié ?
                     </a>
                 </p>
             @endif
 
             <p class="text-center" style="margin-top: 10px;">
-                Vous n'avez pas de compte ? <a href="{{ route('register') }}"
-                    style="color: #ff007a; font-weight: 700;">Inscrivez-vous
+                Vous n'avez pas de compte ? <a href="{{ route('register', ['academy' => $tenant->slug ?? '']) }}"
+                    style="color: var(--primary); font-weight: 700;">Inscrivez-vous
                     ici</a>
             </p>
         </div>

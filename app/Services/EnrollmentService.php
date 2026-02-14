@@ -47,6 +47,35 @@ class EnrollmentService
     }
 
     /**
+     * Update the progress percentage for a user's enrollment in a course.
+     */
+    public function updateProgress(User $user, Course $course)
+    {
+        $enrollment = Enrollment::where('user_id', $user->id)
+            ->where('course_id', $course->id)
+            ->first();
+
+        if (!$enrollment) return;
+
+        // Total lessons in course
+        $totalLessons = $course->modules()->withCount('lessons')->get()->sum('lessons_count');
+        
+        // Completed lessons for this user in this course
+        $completedLessons = \App\Models\LessonCompletion::where('user_id', $user->id)
+            ->where('course_id', $course->id)
+            ->count();
+
+        $progress = $totalLessons > 0 ? min(100, round(($completedLessons / $totalLessons) * 100)) : 0;
+
+        $enrollment->update([
+            'progress_percent' => $progress,
+            'completed_at' => ($progress == 100) ? now() : null
+        ]);
+
+        return $progress;
+    }
+
+    /**
      * Ensure the user has at least a student role for the given tenant.
      * Does NOT override existing owner/instructor roles.
      */

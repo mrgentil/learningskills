@@ -247,7 +247,15 @@
                         @endif
 
                         @auth
-                            <li><a href="{{ url('/dashboard') }}" class="btn-nav-cta" style="margin-left: 20px;">Mon
+                            @php
+                                $isAcademyStudent = Auth::user()
+                                    ->tenants()
+                                    ->where('tenants.id', $tenant->id)
+                                    ->where('role', 'student')
+                                    ->exists();
+                            @endphp
+                            <li><a href="{{ $isAcademyStudent ? url('/dashboard/my-courses') : url('/dashboard') }}"
+                                    class="btn-nav-cta" style="margin-left: 20px;">Mon
                                     Compte</a></li>
                         @else
                             <li><a href="{{ route('login', ['academy' => $tenant->slug]) }}" class="nav-link"
@@ -260,6 +268,26 @@
             </div>
         </div>
     </nav>
+
+    <div class="container">
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible" role="alert"
+                style="margin-top: 20px; border-radius: 10px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <i class="fa fa-check-circle mr-2"></i> {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible" role="alert"
+                style="margin-top: 20px; border-radius: 10px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <i class="fa fa-exclamation-triangle mr-2"></i> {{ session('error') }}
+            </div>
+        @endif
+    </div>
 
     @yield('content')
 

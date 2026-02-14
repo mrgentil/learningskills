@@ -41,6 +41,30 @@ class LoginController extends Controller
     }
 
     /**
+     * The user has been authenticated.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $user
+     * @return mixed
+     */
+    protected function authenticated(Request $request, $user)
+    {
+        if ($request->filled('academy_slug')) {
+            $tenant = Tenant::where('slug', $request->academy_slug)->first();
+            if ($tenant) {
+                // Set the session so SubscriptionMiddleware doesn't redirect to pricing
+                session(['tenant_id' => $tenant->id]);
+                
+                // Redirect to the academy home or student dashboard
+                return redirect()->route('academy.show', $tenant->slug);
+            }
+        }
+
+        // Default behavior
+        return redirect()->intended($this->redirectTo);
+    }
+
+    /**
      * Show the application's login form.
      * Overridden to support branding.
      *

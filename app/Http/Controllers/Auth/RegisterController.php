@@ -58,6 +58,32 @@ class RegisterController extends Controller
     }
 
     /**
+     * The user has been registered.
+     */
+    protected function registered(Request $request, $user)
+    {
+        if ($request->filled('academy_slug')) {
+            $tenant = Tenant::where('slug', $request->academy_slug)->first();
+            if ($tenant) {
+                // Attach the user to the tenant as a student
+                $user->tenants()->syncWithoutDetaching([$tenant->id => [
+                    'role' => 'student',
+                    'status' => 'active',
+                    'joined_at' => now(),
+                ]]);
+
+                // Set the session
+                session(['tenant_id' => $tenant->id]);
+
+                // Redirect to the academy
+                return redirect()->route('academy.show', $tenant->slug);
+            }
+        }
+
+        return redirect($this->redirectTo);
+    }
+
+    /**
      * Get a validator for an incoming registration request.
      *
      * @param  array  $data

@@ -51,7 +51,10 @@ const MyCourses = () => {
                                     <div className="progress mb-4" style={{ height: '8px', borderRadius: '4px', background: '#f1f5f9' }}>
                                         <div className="progress-bar" style={{ width: `${c.progress}%`, background: 'linear-gradient(to right, #6a11cb, #2575fc)', borderRadius: '4px' }}></div>
                                     </div>
-                                    <button className="btn-modern btn-primary-modern w-100">
+                                    <button
+                                        onClick={() => window.location.href = `/academy/${c.academy_slug}/learn/${c.course_slug}`}
+                                        className="btn-modern btn-primary-modern w-100"
+                                    >
                                         Reprendre le cours
                                     </button>
                                 </div>
