@@ -12,10 +12,15 @@ class LessonController extends Controller
     public function store(Request $request, $moduleId)
     {
         $user = Auth::user();
-        $tenant = $user->ownedTenants()->first();
+        // Robust tenant resolution
+        $tenantId = session('tenant_id') ?? $user->ownedTenants()->first()?->id;
+
+        if (!$tenantId) {
+             return response()->json(['message' => 'Académie non trouvée.'], 403);
+        }
         
-        $module = Module::whereHas('course', function($q) use($tenant) { 
-            $q->where('tenant_id', $tenant->id); 
+        $module = Module::whereHas('course', function($q) use($tenantId) { 
+            $q->where('tenant_id', $tenantId); 
         })->findOrFail($moduleId);
 
         $validated = $request->validate([
@@ -23,13 +28,15 @@ class LessonController extends Controller
             'type' => ['required', 'in:video,text,quiz'],
         ]);
 
-        $maxOrder = $module->lessons()->max('order_index') ?? 0;
+        $maxOrder = $module->lessons()->max('sort_order') ?? 0;
 
         $lesson = $module->lessons()->create([
+            'tenant_id' => $tenantId,
             'title' => $validated['title'],
             'type' => $validated['type'],
+            'slug' => \Illuminate\Support\Str::slug($validated['title']) . '-' . \Illuminate\Support\Str::random(4),
             'content' => '', // Empty initially
-            'order_index' => $maxOrder + 1
+            'sort_order' => $maxOrder + 1
         ]);
 
         return response()->json($lesson);
@@ -38,18 +45,20 @@ class LessonController extends Controller
     public function update(Request $request, $lessonId)
     {
         $user = Auth::user();
-        $tenant = $user->ownedTenants()->first();
+        $tenantId = session('tenant_id') ?? $user->ownedTenants()->first()?->id;
 
-        // Deep nested relationship check or simple id check if trusted
-        $lesson = Lesson::whereHas('module.course', function($q) use($tenant) { 
-            $q->where('tenant_id', $tenant->id); 
+        // Deep nested relationship check
+        $lesson = Lesson::whereHas('module.course', function($q) use($tenantId) { 
+            $q->where('tenant_id', $tenantId); 
         })->findOrFail($lessonId);
 
         $validated = $request->validate([
             'title' => ['nullable', 'string', 'max:255'],
             'content' => ['nullable', 'string'], // Markdown or HTML
-            'video_url' => ['nullable', 'url'],
-            'is_published' => ['boolean']
+            'video_url' => ['nullable', 'string', 'max:500'],
+            'type' => ['nullable', 'in:video,text,quiz'],
+            'sort_order' => ['nullable', 'integer'],
+            'is_published' => ['nullable', 'boolean']
         ]);
 
         $lesson->update($validated);

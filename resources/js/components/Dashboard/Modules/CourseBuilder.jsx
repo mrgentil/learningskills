@@ -24,10 +24,12 @@ const CourseBuilder = () => {
     const [newModuleTitle, setNewModuleTitle] = useState('');
     const [editingModule, setEditingModule] = useState(null); // module id being edited
 
-    // Lesson Modal State (simplified for MVP)
+    // Lesson Modal/Editor State
     const [showLessonModal, setShowLessonModal] = useState(false);
+    const [isEditingLesson, setIsEditingLesson] = useState(false);
     const [currentModuleId, setCurrentModuleId] = useState(null);
-    const [lessonForm, setLessonForm] = useState({ title: '', type: 'video' });
+    const [currentLessonId, setCurrentLessonId] = useState(null);
+    const [lessonForm, setLessonForm] = useState({ title: '', type: 'video', video_url: '', content: '' });
 
     useEffect(() => {
         if (courseId !== 'new') {
@@ -134,9 +136,13 @@ const CourseBuilder = () => {
             if (res.ok) {
                 setNewModuleTitle('');
                 fetchCourse(); // Refresh curriculum
+            } else {
+                const errData = await res.json();
+                alert("Erreur lors de la création du module: " + (errData.message || res.statusText));
             }
         } catch (err) {
             console.error(err);
+            alert("Une erreur réseau est survenue.");
         }
     };
 
@@ -155,17 +161,36 @@ const CourseBuilder = () => {
 
     // --- Lesson Management ---
 
-    const openLessonModal = (moduleId) => {
+    const openLessonModal = (moduleId, lesson = null) => {
         setCurrentModuleId(moduleId);
-        setLessonForm({ title: '', type: 'video' });
+        if (lesson) {
+            setIsEditingLesson(true);
+            setCurrentLessonId(lesson.id);
+            setLessonForm({
+                title: lesson.title,
+                type: lesson.type,
+                video_url: lesson.video_url || '',
+                content: lesson.content || ''
+            });
+        } else {
+            setIsEditingLesson(false);
+            setLessonForm({ title: '', type: 'video', video_url: '', content: '' });
+        }
         setShowLessonModal(true);
     };
 
-    const addLesson = async () => {
+    const handleLessonSave = async () => {
         if (!lessonForm.title) return;
+
+        const url = isEditingLesson
+            ? `/api/academy/lessons/${currentLessonId}`
+            : `/api/academy/modules/${currentModuleId}/lessons`;
+
+        const method = isEditingLesson ? 'PUT' : 'POST';
+
         try {
-            const res = await fetch(`/api/academy/modules/${currentModuleId}/lessons`, {
-                method: 'POST',
+            const res = await fetch(url, {
+                method: method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
@@ -176,8 +201,14 @@ const CourseBuilder = () => {
             if (res.ok) {
                 setShowLessonModal(false);
                 fetchCourse();
+            } else {
+                const errData = await res.json();
+                alert("Erreur lors de la sauvegarde de la leçon: " + (errData.message || res.statusText));
             }
-        } catch (err) { console.error(err); }
+        } catch (err) {
+            console.error(err);
+            alert("Une erreur réseau est survenue.");
+        }
     };
 
     const deleteLesson = async (lessonId) => {
@@ -218,14 +249,16 @@ const CourseBuilder = () => {
                 <div className="card-header bg-white border-bottom-0 pt-4 px-4 pb-0">
                     <ul className="nav nav-pills custom-pills" id="courseTabs" role="tablist">
                         <li className="nav-item">
-                            <button className={`nav-link btn-modern mr-2 ${activeTab === 'infos' ? 'active btn-primary-modern' : 'btn-outline-modern'}`} onClick={() => setActiveTab('infos')}>
-                                <i className="fa fa-info-circle mr-2"></i> Informations
+                            <button className={`nav-link btn-modern-lg mr-3 ${activeTab === 'infos' ? 'active-premium' : 'inactive-premium'}`} onClick={() => setActiveTab('infos')}>
+                                <i className="fa fa-info-circle fa-lg mr-2"></i>
+                                <span>Configuration Générale</span>
                             </button>
                         </li>
                         {courseId !== 'new' && (
                             <li className="nav-item">
-                                <button className={`nav-link btn-modern ${activeTab === 'curriculum' ? 'active btn-primary-modern' : 'btn-outline-modern'}`} onClick={() => setActiveTab('curriculum')}>
-                                    <i className="fa fa-list-alt mr-2"></i> Programme (Curriculum)
+                                <button className={`nav-link btn-modern-lg ${activeTab === 'curriculum' ? 'active-premium' : 'inactive-premium'}`} onClick={() => setActiveTab('curriculum')}>
+                                    <i className="fa fa-layer-group fa-lg mr-2"></i>
+                                    <span>Programme du Cours</span>
                                 </button>
                             </li>
                         )}
@@ -299,36 +332,62 @@ const CourseBuilder = () => {
                                 </button>
                             </div>
 
+                            {(!course.modules || course.modules.length === 0) && (
+                                <div className="text-center py-5 border rounded bg-white shadow-sm mb-4" style={{ borderStyle: 'dashed !important', borderWidth: '2px !important' }}>
+                                    <div className="text-muted mb-3"><i className="fa fa-layer-group fa-3x"></i></div>
+                                    <h4 className="font-weight-bold">Votre programme est vide</h4>
+                                    <p className="text-muted">Écrivez un titre ci-dessus (ex: "Introduction") et cliquez sur <b>Ajouter Module</b> pour commencer à créer vos leçons.</p>
+                                    <div className="mt-3">
+                                        <i className="fa fa-long-arrow-up fa-2x text-primary anim-bounce-y"></i>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="accordion" id="curriculumAccordion">
                                 {course.modules && course.modules.map((module, index) => (
-                                    <div className="card border mb-3 shadow-sm" key={module.id} style={{ borderRadius: '12px', overflow: 'hidden' }}>
-                                        <div className="card-header bg-light d-flex justify-content-between align-items-center p-3">
-                                            <h5 className="mb-0 font-weight-bold">
-                                                <i className="fa fa-folder-open mr-2 text-primary"></i>
-                                                Module {index + 1}: {module.title}
-                                            </h5>
-                                            <div>
-                                                <button className="btn btn-sm btn-outline-danger mr-2" onClick={() => deleteModule(module.id)}><i className="fa fa-trash"></i></button>
-                                                <button className="btn btn-sm btn-primary" onClick={() => openLessonModal(module.id)}><i className="fa fa-plus"></i> Leçon</button>
+                                    <div className="card-module-builder mb-4" key={module.id}>
+                                        <div className="card-module-header d-flex justify-content-between align-items-center">
+                                            <div className="d-flex align-items-center">
+                                                <div className="module-number mr-3">{index + 1}</div>
+                                                <h5 className="mb-0 font-weight-bold">{module.title}</h5>
+                                            </div>
+                                            <div className="d-flex gap-2">
+                                                <button className="btn btn-sm btn-outline-danger" onClick={() => deleteModule(module.id)} title="Supprimer le module">
+                                                    <i className="fa fa-trash"></i>
+                                                </button>
+                                                <button className="btn btn-sm btn-primary-modern px-3" onClick={() => openLessonModal(module.id)}>
+                                                    <i className="fa fa-plus mr-1"></i> Leçon
+                                                </button>
                                             </div>
                                         </div>
-                                        <ul className="list-group list-group-flush">
+                                        <div className="list-group list-group-flush">
                                             {module.lessons && module.lessons.map((lesson, lIndex) => (
-                                                <li key={lesson.id} className="list-group-item d-flex justify-content-between align-items-center p-3">
-                                                    <div>
-                                                        <i className={`fa ${lesson.type === 'video' ? 'fa-play-circle text-danger' : 'fa-file-text text-info'} mr-3`}></i>
-                                                        <span className="font-weight-500">{lIndex + 1}. {lesson.title}</span>
+                                                <div key={lesson.id} className="list-group-item d-flex justify-content-between align-items-center lesson-row-builder">
+                                                    <div className="d-flex align-items-center">
+                                                        <div className="lesson-icon-indicator mr-3">
+                                                            <i className={`fa ${lesson.type === 'video' ? 'fa-play-circle text-danger' : 'fa-align-left text-info'}`}></i>
+                                                        </div>
+                                                        <div>
+                                                            <span className="font-weight-bold d-block">{lesson.title}</span>
+                                                            <span className="small text-muted text-uppercase">{lesson.type}</span>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <button className="btn btn-sm btn-light mr-2"><i className="fa fa-pencil"></i></button>
-                                                        <button className="btn btn-sm btn-light text-danger" onClick={() => deleteLesson(lesson.id)}><i className="fa fa-times"></i></button>
+                                                    <div className="d-flex gap-2">
+                                                        <button className="btn btn-sm btn-light border" onClick={() => openLessonModal(module.id, lesson)} title="Modifier le contenu">
+                                                            <i className="fa fa-pencil mr-1"></i> Modifier
+                                                        </button>
+                                                        <button className="btn btn-sm btn-light text-danger border" onClick={() => deleteLesson(lesson.id)} title="Supprimer la leçon">
+                                                            <i className="fa fa-times"></i>
+                                                        </button>
                                                     </div>
-                                                </li>
+                                                </div>
                                             ))}
                                             {(!module.lessons || module.lessons.length === 0) && (
-                                                <li className="list-group-item text-muted text-center py-3 sm-text">Aucune leçon dans ce module.</li>
+                                                <div className="p-4 text-center text-muted">
+                                                    <p className="mb-0 small italic">Aucune leçon dans ce module. Cliquez sur "+ Leçon" pour commencer.</p>
+                                                </div>
                                             )}
-                                        </ul>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -339,30 +398,94 @@ const CourseBuilder = () => {
 
             {/* Simple Lesson Modal */}
             {showLessonModal && (
-                <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-                    <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content card-modern">
-                            <div className="modal-header border-bottom-0">
-                                <h5 className="modal-title font-weight-bold">Ajouter une leçon</h5>
-                                <button type="button" className="close" onClick={() => setShowLessonModal(false)}><span aria-hidden="true">&times;</span></button>
+                <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1050 }}>
+                    <div className="modal-dialog modal-lg modal-dialog-centered">
+                        <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '20px', overflow: 'hidden' }}>
+                            <div className="modal-header bg-dark text-white p-4 border-0">
+                                <h5 className="modal-title font-weight-bold">
+                                    {isEditingLesson ? 'Modifier la leçon' : 'Nouvelle leçon'}
+                                </h5>
+                                <button type="button" className="close text-white" onClick={() => setShowLessonModal(false)}><span aria-hidden="true">&times;</span></button>
                             </div>
-                            <div className="modal-body">
-                                <div className="form-group mb-3">
-                                    <label className="form-label-modern">Titre</label>
-                                    <input type="text" className="form-control-modern" value={lessonForm.title} onChange={(e) => setLessonForm({ ...lessonForm, title: e.target.value })} autoFocus />
+                            <div className="modal-body p-4 bg-light">
+                                <div className="row">
+                                    <div className="col-md-7">
+                                        <div className="form-group mb-4">
+                                            <label className="form-label-modern">Titre de la leçon</label>
+                                            <input
+                                                type="text"
+                                                className="form-control-modern border-2"
+                                                value={lessonForm.title}
+                                                onChange={(e) => setLessonForm({ ...lessonForm, title: e.target.value })}
+                                                placeholder="Ex: Les bases de l'algorithme"
+                                                autoFocus
+                                            />
+                                        </div>
+
+                                        <div className="form-group mb-4">
+                                            <label className="form-label-modern">Type de contenu</label>
+                                            <div className="d-flex gap-3">
+                                                {['video', 'text', 'quiz'].map(t => (
+                                                    <button
+                                                        key={t}
+                                                        type="button"
+                                                        className={`btn flex-grow-1 p-3 border-2 d-flex flex-column align-items-center gap-2 ${lessonForm.type === t ? 'btn-primary-modern border-primary' : 'btn-outline-modern bg-white'}`}
+                                                        onClick={() => setLessonForm({ ...lessonForm, type: t })}
+                                                    >
+                                                        <i className={`fa ${t === 'video' ? 'fa-play-circle' : t === 'text' ? 'fa-file-text' : 'fa-question-circle'} fa-lg`}></i>
+                                                        <span className="text-capitalize font-weight-bold">{t}</span>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="col-md-5">
+                                        <div className="alert alert-info border-0 shadow-sm" style={{ borderRadius: '12px' }}>
+                                            <h6 className="font-weight-bold mb-2"><i className="fa fa-lightbulb-o mr-2"></i>Conseil</h6>
+                                            <p className="small mb-0">Un bon titre doit être court et prometteur. Les leçons vidéos sont les plus appréciées !</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="form-group mb-3">
-                                    <label className="form-label-modern">Type</label>
-                                    <select className="form-control-modern" value={lessonForm.type} onChange={(e) => setLessonForm({ ...lessonForm, type: e.target.value })}>
-                                        <option value="video">Vidéo</option>
-                                        <option value="text">Texte / Article</option>
-                                        <option value="quiz">Quiz</option>
-                                    </select>
-                                </div>
+
+                                <hr className="my-4" />
+
+                                {lessonForm.type === 'video' && (
+                                    <div className="form-group mb-4">
+                                        <label className="form-label-modern">URL de la Vidéo (YouTube, Vimeo, ou MP4)</label>
+                                        <div className="input-group">
+                                            <div className="input-group-prepend">
+                                                <span className="input-group-text bg-white border-2 border-right-0"><i className="fa fa-video-camera text-danger"></i></span>
+                                            </div>
+                                            <input
+                                                type="text"
+                                                className="form-control-modern border-2"
+                                                value={lessonForm.video_url}
+                                                onChange={(e) => setLessonForm({ ...lessonForm, video_url: e.target.value })}
+                                                placeholder="https://www.youtube.com/watch?v=..."
+                                            />
+                                        </div>
+                                        <small className="text-muted mt-2 d-block">Collez simplement l'URL de votre vidéo.</small>
+                                    </div>
+                                )}
+
+                                {lessonForm.type === 'text' && (
+                                    <div className="form-group mb-4">
+                                        <label className="form-label-modern">Contenu de la leçon (Article)</label>
+                                        <ReactQuill
+                                            theme="snow"
+                                            value={lessonForm.content}
+                                            onChange={(val) => setLessonForm({ ...lessonForm, content: val })}
+                                            className="bg-white border-2"
+                                            style={{ height: '250px', marginBottom: '50px' }}
+                                        />
+                                    </div>
+                                )}
                             </div>
-                            <div className="modal-footer border-top-0">
-                                <button type="button" className="btn-modern btn-outline-modern" onClick={() => setShowLessonModal(false)}>Annuler</button>
-                                <button type="button" className="btn-modern btn-primary-modern" onClick={addLesson}>Ajouter</button>
+                            <div className="modal-footer bg-white p-4 border-0">
+                                <button type="button" className="btn-modern btn-outline-modern px-5" onClick={() => setShowLessonModal(false)}>Annuler</button>
+                                <button type="button" className="btn-modern btn-primary-modern px-5" onClick={handleLessonSave}>
+                                    <i className="fa fa-check mr-2"></i> Sauvegarder
+                                </button>
                             </div>
                         </div>
                     </div>

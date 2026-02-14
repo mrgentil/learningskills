@@ -12,19 +12,26 @@ class ModuleController extends Controller
     public function store(Request $request, $courseId)
     {
         $user = Auth::user();
-        $tenant = $user->ownedTenants()->first();
-        $course = $tenant->courses()->findOrFail($courseId);
+        // Robust tenant resolution: session (set by middleware) or fallback to owned
+        $tenantId = session('tenant_id') ?? $user->ownedTenants()->first()?->id;
+        
+        if (!$tenantId) {
+            return response()->json(['message' => 'Académie non trouvée ou session expirée.'], 403);
+        }
+
+        $course = Course::where('tenant_id', $tenantId)->findOrFail($courseId);
 
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
         ]);
 
-        // Calculate next order index
-        $maxOrder = $course->modules()->max('order_index') ?? 0;
+        // Calculate next order index (sort_order is the correct field name)
+        $maxOrder = $course->modules()->max('sort_order') ?? 0;
 
         $module = $course->modules()->create([
+            'tenant_id' => $tenantId, // Ensure it's passed if trait doesn't pick it up
             'title' => $validated['title'],
-            'order_index' => $maxOrder + 1
+            'sort_order' => $maxOrder + 1
         ]);
 
         return response()->json($module);

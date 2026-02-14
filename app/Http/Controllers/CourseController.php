@@ -38,11 +38,13 @@ class CourseController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        $tenant = $user->ownedTenants()->first(); // Only owners/instructors can create
+        $tenantId = session('tenant_id') ?? $user->ownedTenants()->first()?->id;
 
-        if (!$tenant) {
+        if (!$tenantId) {
             return response()->json(['error' => 'Academy not found or permission denied'], 403);
         }
+
+        $tenant = Tenant::findOrFail($tenantId);
 
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
