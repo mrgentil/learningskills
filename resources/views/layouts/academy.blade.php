@@ -170,9 +170,8 @@
             text-align: center;
             font-size: 14px;
         }
-
-        @yield('styles')
     </style>
+    @yield('styles')
 </head>
 
 <body>

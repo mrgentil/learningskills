@@ -10,7 +10,7 @@
             <div class="swiper-wrapper">
                 <!-- Slide 1: Welcome -->
                 <div class="swiper-slide hero-premium"
-                    style="background-image: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url('{{ $tenant->data['banner_url'] ?? 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=2070&auto=format&fit=crop' }}');">
+                    style="background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('{{ $tenant->data['banner_url'] ?? 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=2070&auto=format&fit=crop' }}');">
                     <div class="container hero-content">
                         <div class="row">
                             <div class="col-lg-8 text-center text-lg-left">
@@ -34,7 +34,7 @@
 
                 <!-- Slide 2: Featured Courses -->
                 <div class="swiper-slide hero-premium"
-                    style="background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop');">
+                    style="background-image: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop');">
                     <div class="container hero-content">
                         <div class="row">
                             <div class="col-lg-8 text-center text-lg-left">
@@ -57,7 +57,7 @@
 
                 <!-- Slide 3: Certification -->
                 <div class="swiper-slide hero-premium"
-                    style="background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop');">
+                    style="background-image: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop');">
                     <div class="container hero-content">
                         <div class="row">
                             <div class="col-lg-8 text-center text-lg-left">
@@ -199,8 +199,9 @@
 
             @if ($courses->count() >= 3)
                 <div class="text-center mt-5">
-                    <a href="{{ route('academy.courses', $tenant->slug) }}" class="btn-premium">Voir tous les cours <i
-                            class="fa fa-th-list ml-2"></i></a>
+                    <a href="{{ route('academy.courses', $tenant->slug) }}" class="btn-premium btn-lg-premium">
+                        Voir tous les cours <i class="fa fa-arrow-right ml-2"></i>
+                    </a>
                 </div>
             @endif
         </div>
@@ -343,14 +344,16 @@
             line-height: 1.1;
             margin-bottom: 25px;
             letter-spacing: -2px;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
         }
 
         .hero-subtitle-premium {
             font-size: 22px;
-            opacity: 0.9;
+            opacity: 1;
             margin-bottom: 45px;
             max-width: 650px;
             line-height: 1.6;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
         }
 
         .badge-premium {
@@ -367,22 +370,26 @@
         }
 
         .btn-premium {
-            background: var(--gold);
-            color: white !important;
-            padding: 20px 45px;
-            border-radius: 14px;
-            font-weight: 800;
+            background: #f59e0b;
+            /* Force specific gold */
+            color: #ffffff !important;
+            padding: 18px 40px;
+            border-radius: 12px;
+            font-weight: 900;
             text-decoration: none;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: inline-block;
-            box-shadow: 0 10px 20px rgba(245, 158, 11, 0.2);
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+            border: 2px solid transparent;
+            text-align: center;
         }
 
         .btn-premium:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(245, 158, 11, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(245, 158, 11, 0.4);
             text-decoration: none;
-            color: white !important;
+            color: #ffffff !important;
+            background: #d97706;
         }
 
         .btn-white-outline {
@@ -395,6 +402,13 @@
         .btn-white-outline:hover {
             background: white;
             color: var(--dark-navy) !important;
+        }
+
+        .btn-lg-premium {
+            padding: 22px 60px;
+            font-size: 18px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         .hero-wave {
