@@ -13,6 +13,7 @@ import AcademySettings from './Owner/AcademySettings';
 import InstructorList from './Owner/InstructorList';
 import PageList from './Owner/PageList';
 import PageEditor from './Owner/PageEditor';
+import UserList from './Admin/UserList';
 
 const Dashboard = () => {
     console.log('Dashboard component rendering...');
@@ -36,7 +37,7 @@ const Dashboard = () => {
                     {/* Platform Management (Super Admin) */}
                     <Route path="/dashboard/admin/tenants" element={<AcademyList />} />
                     <Route path="/dashboard/admin/plans" element={<PlanList />} />
-                    <Route path="/dashboard/admin/users" element={<div><h2>Utilisateurs Plateforme</h2><p>Module en cours de développement.</p></div>} />
+                    <Route path="/dashboard/admin/users" element={<UserList />} />
                     <Route path="/dashboard/admin/settings" element={<div><h2>Config Plateforme</h2><p>Module en cours de développement.</p></div>} />
 
                     {/* Student Workspace */}

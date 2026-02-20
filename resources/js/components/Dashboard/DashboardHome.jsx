@@ -102,6 +102,34 @@ const DashboardHome = () => {
     };
 
     const currentCards = stats?.cards || [];
+    const quota = stats?.quota;
+
+    const renderPlanCard = () => {
+        const role = stats?.role ?? user?.role;
+        if (!quota || role === 'super_admin' || role === 'student') return null;
+        const { plan_name, courses_used, courses_limit, students_used, students_limit, license_active } = quota;
+        const coursesText = courses_limit != null ? `${courses_used} / ${courses_limit} cours` : `${courses_used} cours`;
+        const studentsText = students_limit != null ? `${students_used} / ${students_limit} étudiants` : `${students_used} étudiants`;
+
+        return (
+            <div className="stat-card mb-4" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#fff', border: 'none' }}>
+                <div className="d-flex align-items-center justify-content-between mb-3">
+                    <span style={{ fontSize: '12px', opacity: 0.9, textTransform: 'uppercase', fontWeight: 700 }}>Votre plan</span>
+                    {license_active && (
+                        <span className="badge" style={{ background: 'rgba(255,255,255,0.3)', color: '#fff' }}>Licence active</span>
+                    )}
+                </div>
+                <div style={{ fontSize: '22px', fontWeight: 800, marginBottom: 8 }}>{plan_name}</div>
+                <div style={{ fontSize: '13px', opacity: 0.95 }}>
+                    <div><i className="fa fa-book mr-2" style={{ width: 18 }}></i>{coursesText}</div>
+                    <div className="mt-1"><i className="fa fa-users mr-2" style={{ width: 18 }}></i>{studentsText}</div>
+                </div>
+                <a href="/#cbx-pricing" className="btn btn-sm mt-3" style={{ background: 'rgba(255,255,255,0.25)', color: '#fff', border: 'none', fontWeight: 600 }}>
+                    Changer de plan
+                </a>
+            </div>
+        );
+    };
 
     const renderHeader = () => {
         if (user?.role === 'super_admin') {
@@ -159,6 +187,125 @@ const DashboardHome = () => {
         );
     }
 
+    const renderRecentActivity = () => {
+        const role = stats?.role ?? user?.role;
+        const recentData = stats?.recent_data || [];
+
+        if (role === 'super_admin') {
+            return (
+                <div className="stat-card">
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                        <h4 style={{ fontWeight: 700, margin: 0 }}>Académies Récentes</h4>
+                    </div>
+                    <div className="table-responsive">
+                        <table className="table table-hover">
+                            <thead>
+                                <tr style={{ fontSize: '12px', color: '#a0aec0' }}>
+                                    <th>Académie</th>
+                                    <th>Propriétaire</th>
+                                    <th>Créée</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {recentData.length === 0 ? (
+                                    <tr><td colSpan="3" className="text-center py-4">Aucune académie trouvée.</td></tr>
+                                ) : (
+                                    recentData.map((item, idx) => (
+                                        <tr key={idx} style={{ fontSize: '14px' }}>
+                                            <td style={{ fontWeight: 700 }}>{item.name}</td>
+                                            <td>{item.owner}</td>
+                                            <td className="text-muted">{item.created_at}</td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+        }
+
+        if (role === 'owner') {
+            return (
+                <div className="stat-card">
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                        <h4 style={{ fontWeight: 700, margin: 0 }}>Inscriptions Récentes</h4>
+                    </div>
+                    <div className="table-responsive">
+                        <table className="table table-hover">
+                            <thead>
+                                <tr style={{ fontSize: '12px', color: '#a0aec0' }}>
+                                    <th>Étudiant</th>
+                                    <th>Cours</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {recentData.length === 0 ? (
+                                    <tr><td colSpan="3" className="text-center py-4">Aucune inscription récente.</td></tr>
+                                ) : (
+                                    recentData.map((item, idx) => (
+                                        <tr key={idx} style={{ fontSize: '14px' }}>
+                                            <td style={{ fontWeight: 700 }}>{item.student}</td>
+                                            <td>{item.course}</td>
+                                            <td className="text-muted">{item.date}</td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+        }
+
+        if (role === 'student') {
+            return (
+                <div className="stat-card">
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                        <h4 style={{ fontWeight: 700, margin: 0 }}>Mes Cours Récents</h4>
+                    </div>
+                    <div className="list-group list-group-flush">
+                        {recentData.length === 0 ? (
+                            <div className="text-center py-4 text-muted">Vous n'êtes inscrit à aucun cours.</div>
+                        ) : (
+                            recentData.map((item, idx) => (
+                                <div key={idx} className="list-group-item d-flex align-items-center px-0 py-3">
+                                    <div style={{
+                                        width: 60, height: 45, borderRadius: 8,
+                                        backgroundImage: `url(${item.thumbnail || 'https://via.placeholder.com/60x45'})`,
+                                        backgroundSize: 'cover', backgroundPosition: 'center', marginRight: 15
+                                    }} />
+                                    <div className="flex-grow-1">
+                                        <div style={{ fontWeight: 700, fontSize: '14px' }}>{item.title}</div>
+                                        <div className="progress mt-2" style={{ height: 6, borderRadius: 3, width: '100%' }}>
+                                            <div className="progress-bar" style={{ width: `${item.progress}%`, background: 'var(--cbx-pink)' }}></div>
+                                        </div>
+                                    </div>
+                                    <div style={{ marginLeft: 15, fontWeight: 800, fontSize: '13px', color: 'var(--cbx-pink)' }}>
+                                        {item.progress}%
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <div className="stat-card">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h4 style={{ fontWeight: 700, margin: 0 }}>Activité récente</h4>
+                </div>
+                <div className="activity-list text-center py-4 text-muted">
+                    <i className="fa fa-inbox fa-3x mb-3"></i>
+                    <p>Aucune activité particulière.</p>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="fade-in">
             <div className="row mb-5 align-items-center">
@@ -167,6 +314,14 @@ const DashboardHome = () => {
                     {renderAction()}
                 </div>
             </div>
+
+            {renderPlanCard() && (
+                <div className="row mb-4">
+                    <div className="col-12">
+                        {renderPlanCard()}
+                    </div>
+                </div>
+            )}
 
             <div className="row">
                 {currentCards.map((stat, idx) => (
@@ -212,32 +367,7 @@ const DashboardHome = () => {
 
             <div className="row mt-2">
                 <div className="col-lg-8 mb-4">
-                    <div className="stat-card">
-                        <div className="d-flex justify-content-between align-items-center mb-4">
-                            <h4 style={{ fontWeight: 700, margin: 0 }}>Activité récente</h4>
-                        </div>
-                        <div className="activity-list">
-                            {currentCards.every(c => c.value === '0' || c.value === '$0' || c.value === '0%' || c.value === '0/0') ? (
-                                <div className="text-center" style={{ padding: '40px 0', color: '#a0aec0' }}>
-                                    <i className="fa fa-inbox fa-3x mb-3" style={{ display: 'block' }}></i>
-                                    <p style={{ margin: 0, fontSize: '15px' }}>Aucune activité pour le moment.</p>
-                                    <p style={{ margin: '5px 0 0', fontSize: '13px' }}>Commencez par créer votre premier cours !</p>
-                                </div>
-                            ) : (
-                                <div className="activity-item d-flex align-items-center gap-3">
-                                    <div className="user-avatar" style={{ width: '32px', height: '32px', fontSize: '12px' }}>
-                                        {displayName.charAt(0)}
-                                    </div>
-                                    <div>
-                                        <p style={{ margin: 0, fontSize: '14px' }}>
-                                            Bienvenue sur votre tableau de bord ! Créez des cours pour voir l'activité ici.
-                                        </p>
-                                        <small style={{ color: '#a0aec0' }}>Maintenant</small>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                    {renderRecentActivity()}
                 </div>
                 <div className="col-lg-4 mb-4">
                     <div className="quick-tips-card h-100 d-flex flex-column">
@@ -247,15 +377,15 @@ const DashboardHome = () => {
                         </div>
                         <ul style={{ padding: 0, listStyle: 'none', lineHeight: '2' }}>
                             <li className="mb-3 d-flex gap-2">
-                                <i className="fa fa-check-circle mt-1" style={{ color: '#a0aec0' }}></i>
+                                <i className="fa fa-check-circle mt-1" style={{ color: '#fff', opacity: 0.7 }}></i>
                                 <span>Optimisez vos descriptions de cours pour le SEO.</span>
                             </li>
                             <li className="mb-3 d-flex gap-2">
-                                <i className="fa fa-check-circle mt-1" style={{ color: '#a0aec0' }}></i>
+                                <i className="fa fa-check-circle mt-1" style={{ color: '#fff', opacity: 0.7 }}></i>
                                 <span>Ajoutez des modules et leçons pour structurer vos cours.</span>
                             </li>
                             <li className="mb-3 d-flex gap-2">
-                                <i className="fa fa-check-circle mt-1" style={{ color: '#a0aec0' }}></i>
+                                <i className="fa fa-check-circle mt-1" style={{ color: '#fff', opacity: 0.7 }}></i>
                                 <span>Invitez des instructeurs pour enrichir votre catalogue.</span>
                             </li>
                         </ul>
@@ -270,3 +400,4 @@ const DashboardHome = () => {
 };
 
 export default DashboardHome;
+

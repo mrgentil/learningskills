@@ -63,6 +63,18 @@ class DashboardController extends Controller
         $totalCourses = Course::count();
         $totalRevenue = Tenant::sum('total_revenue');
 
+        // Recent Academies
+        $recentAcademies = Tenant::with('owner:id,name')
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get()
+            ->map(fn($t) => [
+                'id' => $t->id,
+                'name' => $t->name,
+                'owner' => $t->owner?->name ?? '—',
+                'created_at' => $t->created_at?->diffForHumans(),
+            ]);
+
         return [
             'role' => 'super_admin',
             'cards' => [
@@ -73,6 +85,7 @@ class DashboardController extends Controller
             ],
             'chart_revenue' => $this->monthlyRevenue(null),
             'chart_students' => $this->weeklyEnrollments(null),
+            'recent_data' => $recentAcademies,
         ];
     }
 
@@ -88,6 +101,19 @@ class DashboardController extends Controller
 
         $quota = app(QuotaService::class)->getUsage($tenant);
 
+        // Recent Enrollments
+        $recentEnrollments = Enrollment::where('tenant_id', $tenant->id)
+            ->with(['user:id,name', 'course:id,title'])
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get()
+            ->map(fn($e) => [
+                'id' => $e->id,
+                'student' => $e->user?->name ?? 'Anonyme',
+                'course' => $e->course?->title ?? '—',
+                'date' => $e->created_at?->diffForHumans(),
+            ]);
+
         return [
             'role' => 'owner',
             'quota' => $quota,
@@ -99,6 +125,7 @@ class DashboardController extends Controller
             ],
             'chart_revenue' => $this->monthlyRevenue($tenant->id),
             'chart_students' => $this->weeklyEnrollments($tenant->id),
+            'recent_data' => $recentEnrollments,
         ];
     }
 
@@ -116,8 +143,11 @@ class DashboardController extends Controller
         $totalStudents = Enrollment::whereIn('course_id', $courseIds)->distinct('user_id')->count('user_id');
         $totalRevenue = (clone $courses)->sum('total_revenue');
 
+        $quota = app(QuotaService::class)->getUsage($tenant);
+
         return [
             'role' => 'instructor',
+            'quota' => $quota,
             'cards' => [
                 ['label' => 'Mes Étudiants', 'value' => (string) $totalStudents, 'icon' => 'fa-users', 'color' => '#6a11cb'],
                 ['label' => 'Mes Cours', 'value' => (string) $totalCourses, 'icon' => 'fa-book', 'color' => '#2575fc'],
@@ -126,6 +156,7 @@ class DashboardController extends Controller
             ],
             'chart_revenue' => $this->monthlyRevenue($tenant->id),
             'chart_students' => $this->weeklyEnrollments($tenant->id),
+            'recent_data' => [],
         ];
     }
 
@@ -135,6 +166,20 @@ class DashboardController extends Controller
         $totalEnrolled = (clone $enrollments)->count();
         $completed = (clone $enrollments)->where('status', 'completed')->count();
         $avgProgress = (clone $enrollments)->avg('progress_percent') ?? 0;
+
+        // My Courses List
+        $myCourses = Enrollment::where('tenant_id', $tenant->id)
+            ->where('user_id', $user->id)
+            ->with('course:id,title,thumbnail')
+            ->orderByDesc('enrolled_at')
+            ->limit(5)
+            ->get()
+            ->map(fn($e) => [
+                'id' => $e->id,
+                'title' => $e->course?->title ?? '—',
+                'thumbnail' => $e->course?->thumbnail,
+                'progress' => $e->progress_percent ?? 0,
+            ]);
 
         return [
             'role' => 'student',
@@ -146,6 +191,7 @@ class DashboardController extends Controller
             ],
             'chart_revenue' => ['labels' => [], 'data' => []],
             'chart_students' => ['labels' => [], 'data' => []],
+            'recent_data' => $myCourses,
         ];
     }
 
@@ -153,6 +199,7 @@ class DashboardController extends Controller
     {
         return [
             'role' => 'owner',
+            'quota' => null,
             'cards' => [
                 ['label' => 'Revenu Total', 'value' => '$0', 'icon' => 'fa-money', 'color' => '#ff007a'],
                 ['label' => 'Étudiants', 'value' => '0', 'icon' => 'fa-users', 'color' => '#6a11cb'],

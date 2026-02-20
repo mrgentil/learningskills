@@ -57,6 +57,7 @@ const AcademySettings = () => {
             });
             if (response.ok) {
                 const data = await response.json();
+                setError(null);
                 setSettings({
                     name: data.name || '',
                     slug: data.slug || '',
@@ -88,9 +89,12 @@ const AcademySettings = () => {
                 if (data.favicon_url) setPreviewFavicon(data.favicon_url);
                 if (data.banner_url) setPreviewBanner(data.banner_url);
                 if (data.about_image) setPreviewAboutImage(data.about_image);
+            } else if (response.status === 404) {
+                setError('Aucune académie associée à votre compte. Créez une académie via le checkout pour accéder aux paramètres.');
             }
         } catch (err) {
             console.error(err);
+            setError('Impossible de charger les paramètres.');
         } finally {
             setLoading(false);
         }
@@ -201,6 +205,21 @@ const AcademySettings = () => {
             <p className="mt-3 text-muted">Chargement de vos paramètres...</p>
         </div>
     );
+
+    if (error && !settings.slug) {
+        return (
+            <div className="fade-in">
+                <div className="alert alert-warning d-flex align-items-center" style={{ borderRadius: 12 }}>
+                    <i className="fa fa-exclamation-triangle fa-2x mr-3" style={{ color: '#f59e0b' }}></i>
+                    <div>
+                        <strong>Académie non trouvée</strong>
+                        <p className="mb-0 mt-1">{error}</p>
+                        <a href="/#cbx-pricing" className="btn btn-sm btn-warning mt-3">Créer une académie</a>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="fade-in">

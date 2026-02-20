@@ -5,6 +5,7 @@ const PAGE_SIZES = [5, 10, 25, 50];
 const CourseList = () => {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [quota, setQuota] = useState(null);
     const [canCreateCourse, setCanCreateCourse] = useState(true);
     const [search, setSearch] = useState('');
@@ -23,10 +24,17 @@ const CourseList = () => {
             const res = await fetch('/api/academy/courses');
             if (res.ok) {
                 const data = await res.json();
-                setCourses(data);
+                setCourses(Array.isArray(data) ? data : []);
+            } else if (res.status === 404) {
+                const err = await res.json().catch(() => ({}));
+                setCourses([]);
+                setError(err.error || 'Aucune académie associée à votre compte. Créez une académie via le checkout ou contactez l\'administrateur.');
+            } else {
+                setCourses([]);
             }
         } catch (err) {
             console.error(err);
+            setError('Impossible de charger les cours.');
         } finally {
             setLoading(false);
         }
@@ -86,6 +94,21 @@ const CourseList = () => {
     };
 
     if (loading) return <div className="text-center p-5"><i className="fa fa-spin fa-spinner fa-2x"></i></div>;
+
+    if (error) {
+        return (
+            <div className="fade-in">
+                <div className="alert alert-warning d-flex align-items-center" style={{ borderRadius: 12 }}>
+                    <i className="fa fa-exclamation-triangle fa-2x mr-3" style={{ color: '#f59e0b' }}></i>
+                    <div>
+                        <strong>Académie non trouvée</strong>
+                        <p className="mb-0 mt-1">{error}</p>
+                        <a href="/#cbx-pricing" className="btn btn-sm btn-warning mt-3">Créer une académie</a>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="fade-in">
