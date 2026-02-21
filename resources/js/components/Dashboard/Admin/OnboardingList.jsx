@@ -9,9 +9,9 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
 const OnboardingList = () => {
-    const [requests, setRequests] = useState < any[] > ([]);
+    const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedRequest, setSelectedRequest] = useState < any > (null);
+    const [selectedRequest, setSelectedRequest] = useState(null);
 
     useEffect(() => {
         fetchRequests();
@@ -28,7 +28,7 @@ const OnboardingList = () => {
         }
     };
 
-    const updateStatus = async (id: number, status: string) => {
+    const updateStatus = async (id, status) => {
         try {
             await axios.put(`/api/admin/onboarding-requests/${id}/status`, { status });
             fetchRequests();
@@ -40,7 +40,7 @@ const OnboardingList = () => {
         }
     };
 
-    const getStatusBadge = (status: string) => {
+    const getStatusBadge = (status) => {
         switch (status) {
             case "new": return <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold uppercase tracking-wider">Nouveau</span>;
             case "contacted": return <span className="px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-wider">Contacté</span>;
@@ -87,7 +87,7 @@ const OnboardingList = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase ${req.selected_plan === 'enterprise' ? 'bg-purple-100 text-purple-700' :
-                                                    req.selected_plan === 'pro' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'
+                                                req.selected_plan === 'pro' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'
                                                 }`}>
                                                 {req.selected_plan}
                                             </span>
@@ -163,7 +163,7 @@ const OnboardingList = () => {
                                 <div className="space-y-2">
                                     <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Types de formation</h3>
                                     <div className="flex flex-wrap gap-2">
-                                        {selectedRequest.training_types?.map((t: string) => (
+                                        {selectedRequest.training_types?.map((t) => (
                                             <span key={t} className="px-2 py-1 bg-slate-100 text-slate-700 rounded-md text-[11px]">{t}</span>
                                         ))}
                                     </div>
@@ -172,7 +172,7 @@ const OnboardingList = () => {
                                 <div className="space-y-2">
                                     <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Contenus prévus</h3>
                                     <div className="flex flex-wrap gap-2">
-                                        {selectedRequest.content_types?.map((t: string) => (
+                                        {selectedRequest.content_types?.map((t) => (
                                             <span key={t} className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded-md text-[11px]">{t}</span>
                                         ))}
                                     </div>
@@ -188,15 +188,15 @@ const OnboardingList = () => {
                                 )}
 
                                 <div className="pt-4">
-                                    <Button
-                                        className="w-full bg-primary text-white h-12 rounded-xl"
+                                    <button
+                                        className="w-full bg-primary text-white h-12 rounded-xl font-bold flex items-center justify-center hover:opacity-90 transition-opacity"
                                         onClick={() => {
                                             // Future: Open AcademyModal pre-filled with this data
                                             alert("Fonctionnalité 'Déployer l'académie' bientôt disponible !");
                                         }}
                                     >
                                         🚀 Déployer maintenant
-                                    </Button>
+                                    </button>
                                 </div>
                             </div>
                         </div>
