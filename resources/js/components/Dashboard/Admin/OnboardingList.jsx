@@ -1,47 +1,39 @@
 import React, { useState, useEffect, useMemo } from "react";
 import {
-    Building2, User, Mail, Calendar,
-    ExternalLink, CheckCircle2, Clock,
-    Archive, MoreVertical, Eye, Search,
-    Filter, X, Shield, Sparkles, Crown,
-    TrendingUp, Users, CreditCard, Rocket,
-    ChevronRight, ArrowUpRight, BarChart3,
-    ArrowLeft, Check
+    Building2, User, Mail, Clock,
+    CheckCircle2, Archive, Search,
+    X, Shield, Sparkles, Crown,
+    Users, Rocket, ChevronRight,
+    ExternalLink, ArrowUpRight
 } from "lucide-react";
 import axios from "axios";
 
-// Native helper for date formatting in French
+/**
+ * NATIVE DATE FORMATTER
+ */
 const formatDate = (dateString) => {
     if (!dateString) return "";
     try {
-        const date = new Date(dateString);
         return new Intl.DateTimeFormat('fr-FR', {
             day: 'numeric',
-            month: 'short',
+            month: 'long',
             year: 'numeric'
-        }).format(date);
+        }).format(new Date(dateString));
     } catch (e) {
         return dateString;
     }
 };
 
-const TIER_ICONS = {
-    starter: Shield,
-    pro: Sparkles,
-    enterprise: Crown,
-};
-
-const TIER_THEMES = {
-    starter: "emerald",
-    pro: "blue",
-    enterprise: "purple",
+const TIER_CONFIG = {
+    starter: { icon: Shield, color: "#10b981", bg: "#f0fdf4", label: "Starter" },
+    pro: { icon: Sparkles, color: "#3b82f6", bg: "#eff6ff", label: "Professional" },
+    enterprise: { icon: Crown, color: "#8b5cf6", bg: "#f5f3ff", label: "Enterprise" },
 };
 
 const OnboardingList = () => {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedRequest, setSelectedRequest] = useState(null);
-    const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
 
@@ -54,7 +46,7 @@ const OnboardingList = () => {
             const resp = await axios.get("/api/admin/onboarding-requests");
             setRequests(resp.data.data || []);
         } catch (err) {
-            console.error("Failed to fetch onboarding requests", err);
+            console.error("Fetch error", err);
         } finally {
             setLoading(false);
         }
@@ -68,169 +60,131 @@ const OnboardingList = () => {
                 setSelectedRequest({ ...selectedRequest, status });
             }
         } catch (err) {
-            alert("Erreur lors de la mise à jour du statut");
+            alert("Erreur");
         }
     };
 
-    const openDetails = (req) => {
-        setSelectedRequest(req);
-        setIsSheetOpen(true);
-    };
-
-    const stats = useMemo(() => ({
-        total: requests.length,
-        new: requests.filter(r => r.status === 'new').length,
-        deployed: requests.filter(r => r.status === 'deployed').length,
-    }), [requests]);
-
     const filteredRequests = useMemo(() => {
         return requests.filter(req => {
-            const matchesSearch =
-                req.organization_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                req.contact_name.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchesSearch = req.organization_name.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesStatus = statusFilter === "all" || req.status === statusFilter;
             return matchesSearch && matchesStatus;
         });
     }, [requests, searchTerm, statusFilter]);
 
     if (loading) return (
-        <div className="flex items-center justify-center min-h-[400px]">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div style={{ display: 'flex', height: '400px', alignItems: 'center', justifyContent: 'center' }}>
+            <p style={{ fontWeight: 800, color: '#94a3b8' }}>CHARGEMENT DU PIPELINE...</p>
         </div>
     );
 
     return (
-        <div className="container mx-auto max-w-7xl space-y-8 animate-in fade-in duration-500 pb-20">
-            {/* Header Area */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div style={{ padding: '40px', maxWidth: '1400px', margin: '0 auto', fontFamily: 'Inter, sans-serif' }}>
+
+            {/* --- TOP SECTION: TITLES & STATUS OVERVIEW --- */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px', borderBottom: '2px solid #f1f5f9', paddingBottom: '30px' }}>
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900 font-display uppercase tracking-tight">Onboarding <span className="text-cbx-amber">Hub</span></h1>
-                    <p className="text-slate-500 text-sm font-medium">Gérez le déploiement et le suivi des nouvelles académies.</p>
+                    <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#0f172a', margin: 0, letterSpacing: '-1px' }}>
+                        Dashboard <span style={{ color: '#f59e0b' }}>Onboarding</span>
+                    </h1>
+                    <p style={{ color: '#64748b', fontSize: '15px', marginTop: '5px', fontWeight: 500 }}>
+                        Suivi des nouveaux comptes et automatisation du déploiement.
+                    </p>
                 </div>
-
-                <div className="flex gap-2">
-                    <div className="bg-white border px-4 py-2 rounded-2xl shadow-sm flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                        <span className="text-xs font-bold text-slate-700 uppercase">{stats.new} NOUVEAUX</span>
-                    </div>
-                    <div className="bg-white border px-4 py-2 rounded-2xl shadow-sm flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                        <span className="text-xs font-bold text-slate-700 uppercase">{stats.deployed} DÉPLOYÉS</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Global Stats bar - Simple & Clean */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="p-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm flex items-center gap-4 group hover:border-primary/50 transition-colors">
-                    <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                        <Users className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Leads</span>
-                        <h4 className="text-2xl font-black text-slate-900 leading-tight">{stats.total}</h4>
-                    </div>
-                </div>
-                <div className="p-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm flex items-center gap-4 group hover:border-cbx-amber/50 transition-colors">
-                    <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-cbx-amber/10 group-hover:text-cbx-amber transition-colors">
-                        <Clock className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">À Contacter</span>
-                        <h4 className="text-2xl font-black text-slate-900 leading-tight">{stats.new}</h4>
-                    </div>
-                </div>
-                <div className="p-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm flex items-center gap-4 group hover:border-emerald-500/50 transition-colors">
-                    <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
-                        <Rocket className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Opérationnels</span>
-                        <h4 className="text-2xl font-black text-slate-900 leading-tight">{stats.deployed}</h4>
+                <div style={{ display: 'flex', gap: '15px' }}>
+                    <div style={{ background: '#eff6ff', border: '1px solid #dbeafe', padding: '10px 20px', borderRadius: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ width: '8px', height: '8px', background: '#3b82f6', borderRadius: '50%' }}></div>
+                        <span style={{ fontSize: '11px', fontWeight: 900, color: '#1e40af' }}>{requests.filter(r => r.status === 'new').length} NOUVEAUX</span>
                     </div>
                 </div>
             </div>
 
-            {/* Filter Hub */}
-            <div className="flex flex-col md:flex-row gap-4">
-                <div className="relative flex-grow">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            {/* --- STATS CARDS: GRID THAT ACTUALLY WORKS --- */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '25px', marginBottom: '50px' }}>
+                {[
+                    { label: 'Total Leads', val: requests.length, icon: Users, color: '#3b82f6' },
+                    { label: 'En Attente', val: requests.filter(r => r.status === 'new').length, icon: Clock, color: '#f59e0b' },
+                    { label: 'Académies Live', val: requests.filter(r => r.status === 'deployed').length, icon: Rocket, color: '#10b981' }
+                ].map((st, i) => (
+                    <div key={i} style={{ flex: '1', minWidth: '300px', background: 'white', padding: '30px', borderRadius: '30px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}>
+                        <div style={{ background: `${st.color}10`, width: '50px', height: '50px', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                            <st.icon style={{ color: st.color, width: '24px', height: '24px' }} />
+                        </div>
+                        <p style={{ margin: 0, fontSize: '12px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>{st.label}</p>
+                        <h3 style={{ margin: 0, fontSize: '36px', fontWeight: 900, color: '#0f172a' }}>{st.val}</h3>
+                    </div>
+                ))}
+            </div>
+
+            {/* --- FILTERS AREA --- */}
+            <div style={{ display: 'flex', gap: '15px', marginBottom: '30px', background: '#0f172a', padding: '15px', borderRadius: '25px' }}>
+                <div style={{ position: 'relative', flex: 1 }}>
+                    <Search style={{ position: 'absolute', left: '15px', top: '15px', width: '18px', height: '18px', color: '#475569' }} />
                     <input
                         type="text"
                         placeholder="Rechercher une organisation..."
-                        className="w-full h-14 pl-11 pr-4 rounded-[1.25rem] bg-white border border-slate-200 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm outline-none shadow-sm"
+                        style={{ width: '100%', height: '48px', paddingLeft: '50px', borderRadius: '18px', border: 'none', background: '#1e293b', color: 'white', fontWeight: 600, fontSize: '14px', outline: 'none' }}
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={e => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <div className="flex gap-2">
-                    <select
-                        className="h-14 px-5 rounded-[1.25rem] bg-white border border-slate-200 text-xs font-black uppercase tracking-widest outline-none focus:ring-4 focus:ring-primary/10 transition-all cursor-pointer shadow-sm"
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                    >
-                        <option value="all">TOUS STATUTS</option>
-                        <option value="new">NOUVEAUX</option>
-                        <option value="deployed">DÉPLOYÉS</option>
-                        <option value="archived">ARCHIVÉS</option>
-                    </select>
-                </div>
+                <select
+                    style={{ height: '48px', padding: '0 20px', borderRadius: '18px', border: 'none', background: '#1e293b', color: 'white', fontWeight: 800, fontSize: '12px', cursor: 'pointer', outline: 'none' }}
+                    value={statusFilter}
+                    onChange={e => setStatusFilter(e.target.value)}
+                >
+                    <option value="all">TOUS STATUTS</option>
+                    <option value="new">NOUVEAUX</option>
+                    <option value="deployed">DÉPLOYÉS</option>
+                </select>
             </div>
 
-            {/* Main Table - Robust & Clean */}
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
-                <table className="w-full">
-                    <thead>
-                        <tr className="bg-slate-50/50 border-b border-slate-100">
-                            <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-left">Organisation / Projet</th>
-                            <th className="px-6 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Licence</th>
-                            <th className="px-6 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-left">Statut</th>
-                            <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
+            {/* --- MAIN TABLE: CLEAN & SPACIOUS --- */}
+            <div style={{ background: 'white', borderRadius: '40px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                        <tr>
+                            <th style={{ padding: '25px 35px', textAlign: 'left', fontSize: '10px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '2px' }}>Client & Projet</th>
+                            <th style={{ padding: '25px', textAlign: 'center', fontSize: '10px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '2px' }}>Licence</th>
+                            <th style={{ padding: '25px', textAlign: 'left', fontSize: '10px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '2px' }}>Statut</th>
+                            <th style={{ padding: '25px 35px', textAlign: 'right' }}></th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50">
-                        {filteredRequests.map((req) => {
-                            const Icon = TIER_ICONS[req.selected_plan] || Shield;
-                            const theme = TIER_THEMES[req.selected_plan] || "emerald";
-
+                    <tbody>
+                        {filteredRequests.map(req => {
+                            const config = TIER_CONFIG[req.selected_plan] || TIER_CONFIG.starter;
                             return (
-                                <tr key={req.id} className="group hover:bg-slate-50/80 transition-all cursor-pointer" onClick={() => openDetails(req)}>
-                                    <td className="px-10 py-8">
-                                        <div className="flex items-center gap-5">
-                                            <div className={`w-14 h-14 rounded-2xl bg-${theme}-50 border border-${theme}-100 flex items-center justify-center text-${theme}-600 shrink-0 group-hover:scale-105 transition-transform`}>
-                                                <Icon className="w-7 h-7" />
+                                <tr key={req.id} style={{ borderBottom: '1px solid #f1f5f9', cursor: 'pointer', transition: 'background 0.2s' }} onClick={() => setSelectedRequest(req)}>
+                                    <td style={{ padding: '30px 35px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                            <div style={{ background: config.bg, width: '60px', height: '60px', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${config.color}20` }}>
+                                                <config.icon style={{ color: config.color, width: '28px', height: '28px' }} />
                                             </div>
                                             <div>
-                                                <h3 className="text-lg font-black text-slate-900 tracking-tight leading-none group-hover:text-primary transition-colors">{req.organization_name}</h3>
-                                                <p className="text-xs text-slate-500 font-bold uppercase mt-2 opacity-60 flex items-center gap-2">
-                                                    <User className="w-3 h-3" /> {req.contact_name} • {formatDate(req.created_at)}
-                                                </p>
+                                                <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 950, color: '#0f172a' }}>{req.organization_name}</h4>
+                                                <p style={{ margin: '5px 0 0', fontSize: '13px', color: '#64748b', fontWeight: 600 }}>{req.contact_name} • <span style={{ opacity: 0.6 }}>{formatDate(req.created_at)}</span></p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 text-center">
-                                        <span className={`px-3 py-1.5 rounded-xl bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest`}>
+                                    <td style={{ padding: '25px', textAlign: 'center' }}>
+                                        <span style={{ padding: '8px 15px', borderRadius: '12px', background: '#0f172a', color: 'white', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase' }}>
                                             {req.selected_plan}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td style={{ padding: '25px' }}>
                                         {req.status === 'new' ? (
-                                            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-black border border-blue-200">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></div> NOUVEAU
-                                            </span>
-                                        ) : req.status === 'deployed' ? (
-                                            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black border border-emerald-200">
-                                                <Check className="w-3 h-3" /> DÉPLOYÉ
-                                            </span>
+                                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: '#eff6ff', color: '#2563eb', borderRadius: '10px', fontSize: '10px', fontWeight: 900, border: '1px solid #dbeafe' }}>
+                                                <div style={{ width: '6px', height: '6px', background: '#2563eb', borderRadius: '50%' }}></div> NOUVEAU
+                                            </div>
                                         ) : (
-                                            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-[10px] font-black border border-slate-200 uppercase">
-                                                {req.status}
-                                            </span>
+                                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: '#f0fdf4', color: '#16a34a', borderRadius: '10px', fontSize: '10px', fontWeight: 900, border: '1px solid #dcfce7' }}>
+                                                <Rocket style={{ width: '12px', height: '12px' }} /> DÉPLOYÉ
+                                            </div>
                                         )}
                                     </td>
-                                    <td className="px-10 py-4 text-right">
-                                        <button className="w-11 h-11 rounded-full bg-slate-100 text-slate-400 group-hover:bg-primary group-hover:text-white flex items-center justify-center transition-all shadow-sm group-hover:shadow-lg group-hover:shadow-primary/30">
-                                            <ChevronRight className="w-5 h-5" />
+                                    <td style={{ padding: '25px 35px', textAlign: 'right' }}>
+                                        <button style={{ width: '45px', height: '45px', borderRadius: '15px', border: 'none', background: '#f8fafc', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <ChevronRight />
                                         </button>
                                     </td>
                                 </tr>
@@ -238,126 +192,68 @@ const OnboardingList = () => {
                         })}
                     </tbody>
                 </table>
-                {filteredRequests.length === 0 && (
-                    <div className="p-20 text-center flex flex-col items-center">
-                        <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-                            <Search className="w-8 h-8 text-slate-200" />
-                        </div>
-                        <h4 className="text-xl font-black text-slate-900">Aucun projet trouvé</h4>
-                        <p className="text-slate-400 font-medium max-w-xs mt-2">Essayez d'ajuster vos critères de recherche ou vos filtres.</p>
-                    </div>
-                )}
             </div>
 
-            {/* SLIDE OVER SHEET - Premium Interaction Pattern */}
-            <div className={`fixed inset-0 z-50 transition-all duration-500 ${isSheetOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}>
-                {/* Backdrop */}
-                <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsSheetOpen(false)}></div>
+            {/* --- SLIDE-OVER PANEL: TOTAL WOW --- */}
+            {selectedRequest && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex' }}>
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(5px)' }} onClick={() => setSelectedRequest(null)}></div>
+                    <div style={{ position: 'absolute', top: 0, right: 0, height: '100%', width: '100%', maxWidth: '600px', background: '#fcfdfe', boxShadow: '-20px 0 50px rgba(0,0,0,0.2)', padding: '50px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
 
-                {/* Panel */}
-                <div className={`absolute top-0 right-0 h-full w-full max-w-xl bg-white shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${isSheetOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-                    {selectedRequest && (
-                        <div className="flex flex-col h-full bg-[#fcfdfe]">
-                            {/* Sheet Header */}
-                            <div className="p-8 bg-slate-900 text-white relative flex justify-between items-center">
-                                <div className="absolute bottom-0 right-0 w-40 h-40 bg-cbx-amber/10 rounded-full blur-[60px] translate-x-10 translate-y-10"></div>
-                                <div>
-                                    <h2 className="text-3xl font-black tracking-tighter uppercase">{selectedRequest.organization_name}</h2>
-                                    <p className="text-cbx-amber text-xs font-black uppercase tracking-[0.3em] mt-1">{selectedRequest.academy_name}</p>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+                            <div style={{ background: '#0f172a', padding: '10px 20px', borderRadius: '15px', color: 'white', fontSize: '11px', fontWeight: 900 }}>DÉTAILS PROSPECT</div>
+                            <button onClick={() => setSelectedRequest(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}><X /></button>
+                        </div>
+
+                        <h2 style={{ fontSize: '38px', fontWeight: 950, color: '#0f172a', margin: 0, letterSpacing: '-2px', lineHeight: 1 }}>{selectedRequest.organization_name}</h2>
+                        <p style={{ color: '#f59e0b', fontWeight: 900, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '2px', marginTop: '10px' }}>{selectedRequest.academy_name}</p>
+
+                        <div style={{ marginTop: '50px', display: 'flex', flexDirection: 'column', gap: '30px' }}>
+
+                            <div style={{ background: 'white', padding: '25px', borderRadius: '25px', border: '1px solid #e2e8f0' }}>
+                                <p style={{ margin: '0 0 15px', fontSize: '10px', color: '#94a3b8', fontWeight: 900, textTransform: 'uppercase' }}>Contact Principal</p>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
+                                    <div style={{ width: '40px', height: '40px', background: '#f8fafc', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><User style={{ width: '18px', color: '#3b82f6' }} /></div>
+                                    <span style={{ fontWeight: 800, fontSize: '16px' }}>{selectedRequest.contact_name}</span>
                                 </div>
-                                <button onClick={() => setIsSheetOpen(false)} className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">
-                                    <X className="w-6 h-6" />
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                    <div style={{ width: '40px', height: '40px', background: '#f8fafc', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Mail style={{ width: '18px', color: '#3b82f6' }} /></div>
+                                    <a href={`mailto:${selectedRequest.email}`} style={{ fontWeight: 700, fontSize: '15px', color: '#3b82f6' }}>{selectedRequest.email}</a>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                <div style={{ background: 'white', padding: '25px', borderRadius: '25px', border: '1px solid #e2e8f0' }}>
+                                    <p style={{ margin: '0 0 10px', fontSize: '10px', color: '#94a3b8', fontWeight: 900, textTransform: 'uppercase' }}>Forfait</p>
+                                    <span style={{ fontWeight: 900, fontSize: '18px', color: '#0f172a' }}>{selectedRequest.selected_plan.toUpperCase()}</span>
+                                </div>
+                                <div style={{ background: 'white', padding: '25px', borderRadius: '25px', border: '1px solid #e2e8f0' }}>
+                                    <p style={{ margin: '0 0 10px', fontSize: '10px', color: '#94a3b8', fontWeight: 900, textTransform: 'uppercase' }}>Certificats</p>
+                                    <span style={{ fontWeight: 900, fontSize: '18px', color: '#0f172a' }}>{selectedRequest.wants_certificates ? 'OUI' : 'NON'}</span>
+                                </div>
+                            </div>
+
+                            {selectedRequest.comments && (
+                                <div style={{ background: '#fdf2f8', padding: '25px', borderRadius: '25px', border: '1px solid #fce7f3' }}>
+                                    <p style={{ margin: '0 0 10px', fontSize: '10px', color: '#db2777', fontWeight: 900, textTransform: 'uppercase' }}>Notes Client</p>
+                                    <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#9d174d', fontStyle: 'italic' }}>"{selectedRequest.comments}"</p>
+                                </div>
+                            )}
+
+                            <div style={{ marginTop: 'auto', paddingTop: '40px' }}>
+                                <button
+                                    onClick={() => updateStatus(selectedRequest.id, 'deployed')}
+                                    style={{ width: '100%', height: '70px', borderRadius: '25px', background: '#0f172a', color: 'white', fontSize: '14px', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', border: 'none' }}
+                                >
+                                    <Rocket /> DÉPLOYER L'ACADÉMIE
                                 </button>
+                                <p style={{ textAlign: 'center', marginTop: '15px', fontSize: '10px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Action irréversible : Créera l'infrastructure technique</p>
                             </div>
 
-                            {/* Sheet Content */}
-                            <div className="flex-grow overflow-y-auto p-10 space-y-10 custom-scrollbar">
-                                {/* Configuration Cards */}
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="p-5 bg-white border border-slate-100 rounded-3xl shadow-sm">
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Plan Choisi</span>
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                                                {TIER_ICONS[selectedRequest.selected_plan] && React.createElement(TIER_ICONS[selectedRequest.selected_plan], { className: "w-4 h-4" })}
-                                            </div>
-                                            <span className="text-lg font-black uppercase leading-none">{selectedRequest.selected_plan}</span>
-                                        </div>
-                                    </div>
-                                    <div className="p-5 bg-white border border-slate-100 rounded-3xl shadow-sm">
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Infrastructure</span>
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center">
-                                                <ExternalLink className="w-4 h-4" />
-                                            </div>
-                                            <span className="text-xs font-bold uppercase truncate">{selectedRequest.custom_domain ? 'Custom Domain' : 'On-Premise'}</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Main Contact Group */}
-                                <div className="space-y-4">
-                                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Responsable & Contact</h4>
-                                    <div className="bg-white rounded-3xl border border-slate-100 shadow-sm divide-y divide-slate-50">
-                                        <div className="p-6 flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center shrink-0">
-                                                <User className="w-5 h-5 text-slate-400" />
-                                            </div>
-                                            <div>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">Nom Complet</p>
-                                                <p className="font-bold text-slate-900">{selectedRequest.contact_name}</p>
-                                            </div>
-                                        </div>
-                                        <div className="p-6 flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center shrink-0">
-                                                <Mail className="w-5 h-5 text-slate-400" />
-                                            </div>
-                                            <div>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">Email</p>
-                                                <a href={`mailto:${selectedRequest.email}`} className="font-bold text-primary hover:underline">{selectedRequest.email}</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Preferences & Tags */}
-                                <div className="space-y-4">
-                                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Configuration Plateforme</h4>
-                                    <div className="flex flex-wrap gap-2">
-                                        {selectedRequest.training_types?.map(t => (
-                                            <span key={t} className="px-4 py-2 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest">{t}</span>
-                                        ))}
-                                        {selectedRequest.content_types?.map(t => (
-                                            <span key={t} className="px-4 py-2 bg-cbd-amber/10 border border-cbx-amber/20 text-cbx-amber rounded-2xl text-[10px] font-black uppercase tracking-widest">{t}</span>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {selectedRequest.comments && (
-                                    <div className="space-y-4">
-                                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Commentaires Client</h4>
-                                        <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100 italic text-sm text-slate-700 leading-relaxed font-medium">
-                                            "{selectedRequest.comments}"
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Sheet Footer Action Area */}
-                            <div className="p-8 bg-white border-t border-slate-100 space-y-4">
-                                <div className="flex gap-2">
-                                    <button onClick={() => updateStatus(selectedRequest.id, 'deployed')} className="flex-grow h-16 rounded-[1.25rem] bg-slate-900 text-white font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 hover:bg-emerald-600 transition-colors shadow-xl shadow-slate-900/20 active:scale-95">
-                                        <Rocket className="w-5 h-5" /> DÉPLOYER MAINTENANT
-                                    </button>
-                                    <button onClick={() => updateStatus(selectedRequest.id, 'archived')} className="w-16 h-16 rounded-[1.25rem] bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors">
-                                        <Archive className="w-6 h-6" />
-                                    </button>
-                                </div>
-                                <p className="text-[9px] text-center font-black text-slate-400 uppercase tracking-widest">Marquer comme opérationnel générera l'accès au tenant.</p>
-                            </div>
                         </div>
-                    )}
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };
