@@ -67,7 +67,7 @@ class EnrollmentController extends Controller
         // Note: The BelongsToTenant trait on Enrollment model will auto-filter by tenant_id if present in session.
         $enrollments = $user->enrollments()
             ->with('course')
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'completed'])
             ->latest('enrolled_at')
             ->get();
 
