@@ -38,6 +38,7 @@ class UserController extends Controller
         }
 
         $academySlug = $ownedTenant ? $ownedTenant->slug : ($tenantUser ? $tenantUser->slug : null);
+        $academyLogo = $ownedTenant ? ($ownedTenant->data['logo_url'] ?? null) : ($tenantUser ? ($tenantUser->data['logo_url'] ?? null) : null);
 
         return response()->json([
             'id' => $user->id,
@@ -45,6 +46,8 @@ class UserController extends Controller
             'email' => $user->email,
             'role' => $role,
             'academy_slug' => $academySlug,
+            'academy_name' => $ownedTenant ? $ownedTenant->name : ($tenantUser ? $tenantUser->name : null),
+            'academy_logo' => $academyLogo,
         ]);
     }
 }

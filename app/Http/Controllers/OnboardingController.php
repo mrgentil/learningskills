@@ -166,7 +166,7 @@ class OnboardingController extends Controller
                     'onboarding_id' => $onboardingRequest->id,
                     'organization' => $onboardingRequest->organization_name,
                     'phone' => $onboardingRequest->phone,
-                    'logo_url' => $onboardingRequest->logo_path,
+                    'logo_url' => $onboardingRequest->logo_path ? (str_starts_with($onboardingRequest->logo_path, 'http') ? $onboardingRequest->logo_path : '/storage/' . $onboardingRequest->logo_path) : null,
                     'brand_colors' => $onboardingRequest->brand_colors,
                     'timezone' => $onboardingRequest->timezone ?? 'UTC',
                     'support_email' => $onboardingRequest->email,

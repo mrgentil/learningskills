@@ -52,11 +52,21 @@ const Sidebar = ({ role }) => {
         <aside className="sidebar">
             <div className="sidebar-header">
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-cbx-amber flex items-center justify-center">
-                        <span className="font-display font-bold text-navy text-sm">LS</span>
-                    </div>
-                    <h3 className="font-display font-bold text-white m-0" style={{ fontSize: '20px', letterSpacing: '-0.5px' }}>
-                        Learning<span style={{ color: 'var(--cbx-amber)' }}>Skills</span>
+                    {user?.academy_logo ? (
+                        <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center bg-white border border-slate-200">
+                            <img src={user.academy_logo} alt="Logo" className="w-full h-full object-contain" />
+                        </div>
+                    ) : (
+                        <div className="w-8 h-8 rounded-lg bg-cbx-amber flex items-center justify-center">
+                            <span className="font-display font-bold text-navy text-sm">LS</span>
+                        </div>
+                    )}
+                    <h3 className="font-display font-bold text-white m-0" style={{ fontSize: '18px', letterSpacing: '-0.5px' }}>
+                        {user && user.role === 'super_admin' ? (
+                            <>Learning<span style={{ color: 'var(--cbx-amber)' }}>Skills</span></>
+                        ) : (
+                            user?.academy_name || 'LearningSkills'
+                        )}
                     </h3>
                 </div>
             </div>
