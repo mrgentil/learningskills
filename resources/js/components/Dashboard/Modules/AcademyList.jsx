@@ -190,7 +190,6 @@ const AcademyList = () => {
     const [tenants, setTenants] = useState([]);
     const [pagination, setPagination] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [page, setPage] = useState(page);
     const [showModal, setShowModal] = useState(false);
     const [selectedAcademy, setSelectedAcademy] = useState(null);
     const [actualPage, setActualPage] = useState(1);

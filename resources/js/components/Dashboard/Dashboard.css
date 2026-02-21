@@ -50,6 +50,21 @@ body {
 .sidebar-menu {
     flex: 1;
     padding: 10px 15px;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.sidebar-menu::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb {
+    background: rgba(245, 158, 11, 0.2);
+    border-radius: 10px;
+}
+
+.sidebar-menu::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 .menu-item {

@@ -42,6 +42,12 @@ class TenantLicense extends Model
         if ($this->status === 'expired') {
             return false;
         }
+        
+        // Perfection/Lifetime: If no expiration date is set, it's always active
+        if ($this->expires_at === null) {
+            return true;
+        }
+
         $today = Carbon::today();
         return $this->starts_at->lte($today) && $this->expires_at->gte($today);
     }

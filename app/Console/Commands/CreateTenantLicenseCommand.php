@@ -12,9 +12,10 @@ class CreateTenantLicenseCommand extends Command
                             {tenant : ID ou slug du tenant (académie)} 
                             {--name= : Nom de la licence (défaut: Licence Annuelle)}
                             {--years=1 : Nombre d\'années de validité}
-                            {--maintenance=1 : Maintenance incluse (1/0)}';
+                            {--maintenance=1 : Maintenance incluse (1/0)}
+                            {--lifetime : Créer une licence à vie (perpétuelle)}';
 
-    protected $description = 'Crée une licence annuelle pour un client (tenant) avec droits étendus.';
+    protected $description = 'Crée une licence annuelle ou à vie pour un client (tenant) avec droits étendus.';
 
     public function handle(): int
     {
@@ -31,9 +32,10 @@ class CreateTenantLicenseCommand extends Command
         $name = $this->option('name') ?: 'Licence Annuelle';
         $years = (int) $this->option('years');
         $maintenance = (bool) $this->option('maintenance');
+        $lifetime = (bool) $this->option('lifetime');
 
         $startsAt = now()->toDateString();
-        $expiresAt = now()->addYears($years)->toDateString();
+        $expiresAt = $lifetime ? null : now()->addYears($years)->toDateString();
 
         $license = TenantLicense::create([
             'tenant_id' => $tenant->id,
@@ -52,7 +54,7 @@ class CreateTenantLicenseCommand extends Command
                 ['ID', $license->id],
                 ['Nom', $license->name],
                 ['Début', $license->starts_at->format('d/m/Y')],
-                ['Expiration', $license->expires_at->format('d/m/Y')],
+                ['Expiration', $license->expires_at ? $license->expires_at->format('d/m/Y') : 'À vie'],
                 ['Maintenance incluse', $license->maintenance_included ? 'Oui' : 'Non'],
             ]
         );

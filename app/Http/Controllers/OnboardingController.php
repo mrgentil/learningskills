@@ -223,13 +223,13 @@ class OnboardingController extends Controller
                 'joined_at' => now(),
             ]);
 
-            // 5. Create the initial license (12 months)
+            // 5. Create the initial license (Lifetime by default)
             if ($plan) {
                 TenantLicense::create([
                     'tenant_id' => $tenant->id,
                     'name' => "Licence {$plan->name} — {$tenant->name}",
                     'starts_at' => now(),
-                    'expires_at' => now()->addMonths(12),
+                    'expires_at' => null, // Lifetime
                     'maintenance_included' => true,
                     'rights' => $plan->features ?? [],
                     'status' => 'active',

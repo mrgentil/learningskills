@@ -51,7 +51,7 @@ class TenantController extends Controller
                 'is_active' => $t->is_active,
                 'total_revenue' => $t->total_revenue ?? 0,
                 'license_status' => $activeLicense ? 'active' : 'none',
-                'license_expires' => $activeLicense?->expires_at?->toDateString(),
+                'license_expires' => $activeLicense ? ($activeLicense->expires_at ? $activeLicense->expires_at->toDateString() : 'À vie') : null,
                 'created_at' => $t->created_at?->toIso8601String(),
             ];
         });
@@ -109,7 +109,7 @@ class TenantController extends Controller
                 'tenant_id' => $tenant->id,
                 'name' => "Licence {$plan->name} — {$tenant->name}",
                 'starts_at' => now(),
-                'expires_at' => now()->addMonths($durationMonths),
+                'expires_at' => null, // Lifetime
                 'maintenance_included' => true,
                 'rights' => $plan->features ?? [],
                 'status' => 'active',

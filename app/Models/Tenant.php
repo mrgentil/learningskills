@@ -66,7 +66,10 @@ class Tenant extends Model
         return $this->hasOne(TenantLicense::class)
             ->where('status', 'active')
             ->where('starts_at', '<=', now()->toDateString())
-            ->where('expires_at', '>=', now()->toDateString())
+            ->where(function ($query) {
+                $query->where('expires_at', '>=', now()->toDateString())
+                      ->orWhereNull('expires_at');
+            })
             ->latest('expires_at');
     }
 }

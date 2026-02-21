@@ -90,6 +90,11 @@ Route::middleware(['auth'])->prefix('api/admin')->group(function () {
     Route::patch('/onboarding-requests/{id}', [App\Http\Controllers\OnboardingController::class, 'update']);
     Route::put('/onboarding-requests/{id}/status', [App\Http\Controllers\OnboardingController::class, 'updateStatus']);
     Route::post('/onboarding-requests/{id}/deploy', [App\Http\Controllers\OnboardingController::class, 'deploy']);
+
+    // Registration of Platform Settings
+    Route::get('/settings', [App\Http\Controllers\Admin\SystemSettingsController::class, 'index']);
+    Route::post('/settings', [App\Http\Controllers\Admin\SystemSettingsController::class, 'update']);
+    Route::post('/settings/setup', [App\Http\Controllers\Admin\SystemSettingsController::class, 'setupDefaults']);
 });
 
 // Public Onboarding Routes
