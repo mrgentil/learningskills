@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 const TIER_OPTIONS = [
     { value: '', label: '— Aucun —' },
@@ -149,7 +150,7 @@ const PlanModal = ({ plan, onClose, onSuccess }) => {
             if (error.response && error.response.data.errors) {
                 setErrors(error.response.data.errors);
             } else {
-                alert('Une erreur est survenue.');
+                toast.error('Une erreur est survenue.');
             }
         } finally {
             setLoading(false);

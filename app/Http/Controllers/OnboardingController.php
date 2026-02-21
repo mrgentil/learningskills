@@ -100,7 +100,7 @@ class OnboardingController extends Controller
         $this->authorizeAdmin();
 
         $validated = $request->validate([
-            'status' => 'required|in:new,contacted,deployed,archived',
+            'status' => 'required|in:new,contacted,archived',
         ]);
 
         $onboardingRequest = OnboardingRequest::findOrFail($id);
@@ -166,6 +166,15 @@ class OnboardingController extends Controller
                     'onboarding_id' => $onboardingRequest->id,
                     'organization' => $onboardingRequest->organization_name,
                     'phone' => $onboardingRequest->phone,
+                    'logo_url' => $onboardingRequest->logo_path,
+                    'brand_colors' => $onboardingRequest->brand_colors,
+                    'timezone' => $onboardingRequest->timezone ?? 'UTC',
+                    'support_email' => $onboardingRequest->email,
+                    'support_phone' => $onboardingRequest->phone,
+                    // Pre-fill some defaults based on training types
+                    'description' => $onboardingRequest->comments ?? '',
+                    'about' => "Bienvenue sur l'académie de {$onboardingRequest->academy_name}. " . 
+                               ($onboardingRequest->comments ? "\n\n" . $onboardingRequest->comments : ""),
                 ]
             ]);
 
@@ -189,8 +198,12 @@ class OnboardingController extends Controller
                 ]);
             }
 
-            // 6. Update onboarding request status
-            $onboardingRequest->update(['status' => 'deployed']);
+            // 6. Update onboarding request status and deployment info
+            $onboardingRequest->update([
+                'status' => 'deployed',
+                'deployed_at' => now(),
+                'academy_url' => url("/academy/{$tenant->slug}"),
+            ]);
 
             return response()->json([
                 'message' => 'Académie déployée avec succès.',

@@ -41,6 +41,9 @@ const AcademySettings = () => {
     const [previewBanner, setPreviewBanner] = useState(null);
     const [previewAboutImage, setPreviewAboutImage] = useState(null);
 
+    const [activeTab, setActiveTab] = useState('general');
+    const [license, setLicense] = useState(null);
+    const [quota, setQuota] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState(null);
@@ -85,6 +88,8 @@ const AcademySettings = () => {
                     feature3_desc: data.feature3_desc || '',
                     stat_satisfaction_percent: data.stat_satisfaction_percent || '99'
                 });
+                setLicense(data.license);
+                setQuota(data.quota);
                 if (data.logo_url) setPreviewLogo(data.logo_url);
                 if (data.favicon_url) setPreviewFavicon(data.favicon_url);
                 if (data.banner_url) setPreviewBanner(data.banner_url);
@@ -199,6 +204,31 @@ const AcademySettings = () => {
         }
     };
 
+    const renderQuotaBar = (used, limit, label) => {
+        const percent = limit ? Math.min(100, (used / limit) * 100) : 0;
+        const isUnlimited = !limit;
+        const color = percent > 90 ? 'bg-danger' : percent > 70 ? 'bg-warning' : 'bg-success';
+
+        return (
+            <div className="mb-4">
+                <div className="d-flex justify-content-between mb-2">
+                    <span className="font-weight-bold text-dark">{label}</span>
+                    <span className="text-muted">
+                        {used} / {isUnlimited ? '∞' : limit}
+                    </span>
+                </div>
+                <div className="progress" style={{ height: '8px', borderRadius: '4px', backgroundColor: '#e2e8f0' }}>
+                    <div
+                        className={`progress-bar ${color}`}
+                        role="progressbar"
+                        style={{ width: `${isUnlimited ? (used > 0 ? 10 : 0) : percent}%`, borderRadius: '4px' }}
+                    ></div>
+                </div>
+                {isUnlimited && <small className="text-muted mt-1 d-block text-right">Illimité</small>}
+            </div>
+        );
+    };
+
     if (loading) return (
         <div className="text-center p-5">
             <i className="fa fa-circle-o-notch fa-spin fa-3x" style={{ color: 'var(--cbx-navy)' }}></i>
@@ -226,11 +256,36 @@ const AcademySettings = () => {
             <div className="d-flex justify-content-between align-items-center mb-4 dashboard-header">
                 <div>
                     <h2 className="page-title">Paramètres de l'Académie ⚙️</h2>
-                    <p className="page-subtitle">Personnalisez l'apparence et les informations de votre académie.</p>
+                    <p className="page-subtitle">Gérez l'apparence, les informations et votre licence.</p>
                 </div>
                 <a href={`/academy/${settings.slug}`} target="_blank" rel="noreferrer" className="btn-modern btn-outline-modern">
                     <i className="fa fa-external-link mr-2"></i> Voir ma page publique
                 </a>
+            </div>
+
+            {/* Navigation par Onglets */}
+            <div className="d-flex mb-4" style={{ gap: '10px', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px' }}>
+                <button
+                    onClick={() => setActiveTab('general')}
+                    className={`btn btn-sm ${activeTab === 'general' ? 'btn-primary shadow-sm' : 'btn-light'}`}
+                    style={activeTab === 'general' ? { background: 'var(--cbx-navy)', border: 'none' } : {}}
+                >
+                    <i className="fa fa-info-circle mr-2"></i> Général
+                </button>
+                <button
+                    onClick={() => setActiveTab('appearance')}
+                    className={`btn btn-sm ${activeTab === 'appearance' ? 'btn-primary shadow-sm' : 'btn-light'}`}
+                    style={activeTab === 'appearance' ? { background: 'var(--cbx-navy)', border: 'none' } : {}}
+                >
+                    <i className="fa fa-paint-brush mr-2"></i> Design & Landing
+                </button>
+                <button
+                    onClick={() => setActiveTab('license')}
+                    className={`btn btn-sm ${activeTab === 'license' ? 'btn-primary shadow-sm' : 'btn-light'}`}
+                    style={activeTab === 'license' ? { background: 'var(--cbx-navy)', border: 'none' } : {}}
+                >
+                    <i className="fa fa-id-card mr-2"></i> Licence & Capacité
+                </button>
             </div>
 
             <div className="row">
@@ -250,406 +305,201 @@ const AcademySettings = () => {
                                 </div>
                             )}
 
-                            <form onSubmit={handleSubmit} encType="multipart/form-data">
-                                <div className="row mb-4">
-                                    <div className="col-md-6">
-                                        <div className="form-group">
-                                            <label className="form-label-modern font-weight-bold">Logo de l'Académie</label>
-                                            <div className="d-flex align-items-center">
-                                                <div className="mr-3 p-1 border rounded bg-light" style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                                                    {previewLogo ? (
-                                                        <img src={previewLogo} alt="Logo Preview" style={{ maxWidth: '100%', maxHeight: '100%' }} />
-                                                    ) : (
-                                                        <i className="fa fa-image fa-2x text-muted"></i>
-                                                    )}
-                                                </div>
-                                                <div className="flex-grow-1">
-                                                    <input
-                                                        type="file"
-                                                        name="logo"
-                                                        onChange={handleFileChange}
-                                                        className="form-control-modern"
-                                                        accept="image/*"
-                                                    />
-                                                    <small className="text-muted d-block">JPG, PNG. Max 2MB.</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <div className="form-group">
-                                            <label className="form-label-modern font-weight-bold">Favicon (Icône Onglet)</label>
-                                            <div className="d-flex align-items-center">
-                                                <div className="mr-3 p-1 border rounded bg-light" style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                                                    {previewFavicon ? (
-                                                        <img src={previewFavicon} alt="Favicon Preview" style={{ maxWidth: '100%', maxHeight: '100%' }} />
-                                                    ) : (
-                                                        <i className="fa fa-star text-muted"></i>
-                                                    )}
-                                                </div>
-                                                <div className="flex-grow-1">
-                                                    <input
-                                                        type="file"
-                                                        name="favicon"
-                                                        onChange={handleFileChange}
-                                                        className="form-control-modern"
-                                                        accept="image/*"
-                                                    />
-                                                    <small className="text-muted d-block">Carré 32x32px recommandé. PNG/ICO.</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            {activeTab === 'general' && (
+                                <form onSubmit={handleSubmit} encType="multipart/form-data">
+                                    <h5 className="mb-4 text-dark font-weight-bold">Informations de base</h5>
 
-                                <div className="row mb-4">
-                                    <div className="col-md-12">
-                                        <div className="form-group">
-                                            <label className="form-label-modern font-weight-bold">Bannière (Couverture)</label>
-                                            <div className="d-block mb-2 border rounded bg-light" style={{ height: '80px', backgroundImage: `url(${previewBanner})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                                                {!previewBanner && <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted"><i className="fa fa-image"></i></div>}
-                                            </div>
-                                            <input
-                                                type="file"
-                                                name="banner"
-                                                onChange={handleFileChange}
-                                                className="form-control-modern"
-                                                accept="image/*"
-                                            />
-                                            <small className="text-muted">1200x400px recommandé. Max 4MB.</small>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="form-group mb-4">
-                                    <label className="form-label-modern font-weight-bold">Nom de l'Académie</label>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        className="form-control-modern form-control-lg"
-                                        value={settings.name}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder="Ex: Académie du Code"
-                                    />
-                                </div>
-
-                                <div className="form-group mb-4">
-                                    <label className="form-label-modern font-weight-bold">Slogan / Description Courte</label>
-                                    <textarea
-                                        name="description"
-                                        className="form-control-modern"
-                                        rows="2"
-                                        value={settings.description}
-                                        onChange={handleChange}
-                                        placeholder="Une phrase accrocheuse pour décrire votre académie..."
-                                    ></textarea>
-                                </div>
-
-                                <div className="form-group mb-4">
-                                    <label className="form-label-modern font-weight-bold">À Propos (Page /about)</label>
-                                    <ReactQuill
-                                        theme="snow"
-                                        value={settings.about}
-                                        onChange={handleQuillChange}
-                                        className="bg-white"
-                                        placeholder="Racontez votre histoire, votre mission..."
-                                        modules={{
-                                            toolbar: [
-                                                [{ 'header': [1, 2, 3, false] }],
-                                                ['bold', 'italic', 'underline', 'strike'],
-                                                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                                                ['link', 'clean']
-                                            ],
-                                        }}
-                                    />
-                                </div>
-
-                                <div className="row mb-4">
-                                    <div className="col-md-4">
-                                        <div className="form-group">
-                                            <label className="form-label-modern font-weight-bold">Badge Expérience (Chiffre)</label>
-                                            <input
-                                                type="text"
-                                                name="experience_years"
-                                                className="form-control-modern"
-                                                value={settings.experience_years}
-                                                onChange={handleChange}
-                                                placeholder="Ex: 10+"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="col-md-8">
-                                        <div className="form-group">
-                                            <label className="form-label-modern font-weight-bold">Label Expérience</label>
-                                            <input
-                                                type="text"
-                                                name="experience_label"
-                                                className="form-control-modern"
-                                                value={settings.experience_label}
-                                                onChange={handleChange}
-                                                placeholder="Ex: Années d'expérience"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="form-group mb-4">
-                                    <label className="form-label-modern font-weight-bold">Image "À Propos" (Illustration)</label>
-                                    <div className="d-flex align-items-center mb-2">
-                                        <div className="mr-3 p-1 border rounded bg-light" style={{ width: '120px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                                            {previewAboutImage ? (
-                                                <img src={previewAboutImage} alt="About Preview" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }} />
-                                            ) : (
-                                                <i className="fa fa-image fa-2x text-muted"></i>
-                                            )}
-                                        </div>
-                                        <div className="flex-grow-1">
-                                            <input
-                                                type="file"
-                                                name="about_image"
-                                                onChange={handleFileChange}
-                                                className="form-control-modern"
-                                                accept="image/*"
-                                            />
-                                            <small className="text-muted">Image qui illustre votre section "À propos". Max 4MB.</small>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="form-group mb-4">
-                                    <label className="form-label-modern font-weight-bold">Texte de Pied de Page (Mission)</label>
-                                    <textarea
-                                        name="footer_about"
-                                        className="form-control-modern"
-                                        rows="3"
-                                        value={settings.footer_about}
-                                        onChange={handleChange}
-                                        placeholder="Ex: Notre mission est de rendre l'éducation accessible à tous..."
-                                    ></textarea>
-                                </div>
-
-                                <hr className="my-5" />
-                                <h4 className="mb-4" style={{ color: 'var(--cbx-amber)' }}><i className="fa fa-magic mr-2"></i> Personnalisation Bannière (Slider Hero)</h4>
-
-                                <div className="card bg-light border-0 mb-4 shadow-sm">
-                                    <div className="card-body p-4">
-                                        <h6 className="font-weight-bold mb-3 d-flex align-items-center">
-                                            <span className="badge mr-2" style={{ background: 'var(--cbx-amber)', color: '#0f172a' }}>2</span> Slide 2: Formations / Catalogue
-                                        </h6>
-                                        <div className="form-group mb-3">
-                                            <label className="small font-weight-bold">Titre Slide 2</label>
-                                            <input type="text" name="hero_slide2_title" className="form-control-modern" value={settings.hero_slide2_title} onChange={handleChange} placeholder="Ex: Boostez Votre Carrière" />
-                                        </div>
-                                        <div className="form-group">
-                                            <label className="small font-weight-bold">Sous-titre Slide 2</label>
-                                            <textarea name="hero_slide2_subtitle" className="form-control-modern" rows="2" value={settings.hero_slide2_subtitle} onChange={handleChange} placeholder="Accédez à plus de formations spécialisées..."></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="card bg-light border-0 mb-4 shadow-sm">
-                                    <div className="card-body p-4">
-                                        <h6 className="font-weight-bold mb-3 d-flex align-items-center">
-                                            <span className="badge mr-2" style={{ background: 'var(--cbx-amber)', color: '#0f172a' }}>3</span> Slide 3: Certification / Confiance
-                                        </h6>
-                                        <div className="form-group mb-3">
-                                            <label className="small font-weight-bold">Titre Slide 3</label>
-                                            <input type="text" name="hero_slide3_title" className="form-control-modern" value={settings.hero_slide3_title} onChange={handleChange} placeholder="Ex: Validé & Certifié" />
-                                        </div>
-                                        <div className="form-group">
-                                            <label className="small font-weight-bold">Sous-titre Slide 3</label>
-                                            <textarea name="hero_slide3_subtitle" className="form-control-modern" rows="2" value={settings.hero_slide3_subtitle} onChange={handleChange} placeholder="Tous nos diplômes sont reconnus..."></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <hr className="my-5" />
-                                <h4 className="mb-4" style={{ color: 'var(--cbx-navy-light)' }}><i className="fa fa-th-list mr-2"></i> Section Caractéristiques (3 Badges)</h4>
-
-                                <div className="row">
-                                    <div className="col-md-4">
-                                        <div className="card border-0 bg-light p-3 h-100">
-                                            <div className="form-group mb-3">
-                                                <label className="small font-weight-bold">Badge 1: Titre</label>
-                                                <input type="text" name="feature1_title" className="form-control-modern" value={settings.feature1_title} onChange={handleChange} />
-                                            </div>
+                                    <div className="row mb-4">
+                                        <div className="col-md-6">
                                             <div className="form-group">
-                                                <label className="small font-weight-bold">Badge 1: Description</label>
-                                                <textarea name="feature1_desc" className="form-control-modern" rows="3" value={settings.feature1_desc} onChange={handleChange}></textarea>
+                                                <label className="form-label-modern font-weight-bold">Logo</label>
+                                                <div className="d-flex align-items-center">
+                                                    <div className="mr-3 p-1 border rounded bg-light" style={{ width: '60px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                                                        {previewLogo ? (
+                                                            <img src={previewLogo} alt="Logo Preview" style={{ maxWidth: '100%', maxHeight: '100%' }} />
+                                                        ) : (
+                                                            <i className="fa fa-image fa-2x text-muted"></i>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex-grow-1">
+                                                        <input type="file" name="logo" onChange={handleFileChange} className="form-control-modern" accept="image/*" />
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div className="col-md-4">
-                                        <div className="card border-0 bg-light p-3 h-100">
-                                            <div className="form-group mb-3">
-                                                <label className="small font-weight-bold">Badge 2: Titre</label>
-                                                <input type="text" name="feature2_title" className="form-control-modern" value={settings.feature2_title} onChange={handleChange} />
-                                            </div>
+                                        <div className="col-md-6">
                                             <div className="form-group">
-                                                <label className="small font-weight-bold">Badge 2: Description</label>
-                                                <textarea name="feature2_desc" className="form-control-modern" rows="3" value={settings.feature2_desc} onChange={handleChange}></textarea>
+                                                <label className="form-label-modern font-weight-bold">Favicon</label>
+                                                <div className="d-flex align-items-center">
+                                                    <div className="mr-3 p-1 border rounded bg-light" style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                                                        {previewFavicon ? (
+                                                            <img src={previewFavicon} alt="Favicon Preview" style={{ maxWidth: '100%', maxHeight: '100%' }} />
+                                                        ) : (
+                                                            <i className="fa fa-star text-muted"></i>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex-grow-1">
+                                                        <input type="file" name="favicon" onChange={handleFileChange} className="form-control-modern" accept="image/*" />
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="col-md-4">
-                                        <div className="card border-0 bg-light p-3 h-100">
+
+                                    <div className="form-group mb-4">
+                                        <label className="form-label-modern font-weight-bold">Nom de l'Académie</label>
+                                        <input type="text" name="name" className="form-control-modern form-control-lg" value={settings.name} onChange={handleChange} required />
+                                    </div>
+
+                                    <div className="form-group mb-4">
+                                        <label className="form-label-modern font-weight-bold">Description Courte</label>
+                                        <textarea name="description" className="form-control-modern" rows="2" value={settings.description} onChange={handleChange} placeholder="Une phrase accrocheuse..."></textarea>
+                                    </div>
+
+                                    <h5 className="mt-5 mb-4 text-dark font-weight-bold">Contact & Support</h5>
+                                    <div className="row">
+                                        <div className="col-md-6">
                                             <div className="form-group mb-3">
-                                                <label className="small font-weight-bold">Badge 3: Titre</label>
-                                                <input type="text" name="feature3_title" className="form-control-modern" value={settings.feature3_title} onChange={handleChange} />
-                                            </div>
-                                            <div className="form-group">
-                                                <label className="small font-weight-bold">Badge 3: Description</label>
-                                                <textarea name="feature3_desc" className="form-control-modern" rows="3" value={settings.feature3_desc} onChange={handleChange}></textarea>
+                                                <label className="small font-weight-bold">Email de Support</label>
+                                                <input type="email" name="support_email" className="form-control-modern" value={settings.support_email} onChange={handleChange} />
                                             </div>
                                         </div>
+                                        <div className="col-md-6">
+                                            <div className="form-group mb-3">
+                                                <label className="small font-weight-bold">Téléphone</label>
+                                                <input type="text" name="support_phone" className="form-control-modern" value={settings.support_phone} onChange={handleChange} />
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <hr className="my-5" />
-                                <h4 className="mb-4" style={{ color: 'var(--cbx-navy)' }}><i className="fa fa-chart-bar mr-2"></i> Statistiques & Chiffres</h4>
-                                <div className="row">
-                                    <div className="col-md-4">
-                                        <div className="form-group">
-                                            <label className="form-label-modern font-weight-bold">Taux de Satisfaction %</label>
-                                            <input type="number" name="stat_satisfaction_percent" className="form-control-modern" value={settings.stat_satisfaction_percent} onChange={handleChange} max="100" />
+                                    <h5 className="mt-5 mb-4 text-dark font-weight-bold">Réseaux Sociaux</h5>
+                                    <div className="form-group mb-3">
+                                        <label className="small font-weight-bold">Facebook URL</label>
+                                        <input type="url" name="facebook_url" className="form-control-modern" value={settings.facebook_url} onChange={handleChange} />
+                                    </div>
+                                    <div className="form-group mb-3">
+                                        <label className="small font-weight-bold">Instagram URL</label>
+                                        <input type="url" name="instagram_url" className="form-control-modern" value={settings.instagram_url} onChange={handleChange} />
+                                    </div>
+
+                                    <div className="mt-5 d-flex justify-content-end">
+                                        <button type="submit" className="btn-modern btn-primary-modern px-5 py-2 shadow-sm" disabled={saving}>
+                                            {saving ? <><i className="fa fa-spinner fa-spin mr-2"></i> Enregistrement...</> : <><i className="fa fa-save mr-2"></i> Enregistrer les modifications</>}
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
+
+                            {activeTab === 'appearance' && (
+                                <form onSubmit={handleSubmit} encType="multipart/form-data">
+                                    <h5 className="mb-4 text-dark font-weight-bold">Design de la Landing Page</h5>
+
+                                    <div className="form-group mb-4">
+                                        <label className="form-label-modern font-weight-bold">Bannière (Hero Section)</label>
+                                        <div className="d-block mb-2 border rounded bg-light" style={{ height: '100px', backgroundImage: `url(${previewBanner})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                                            {!previewBanner && <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted"><i className="fa fa-image"></i></div>}
+                                        </div>
+                                        <input type="file" name="banner" onChange={handleFileChange} className="form-control-modern" accept="image/*" />
+                                    </div>
+
+                                    <div className="form-group mb-4">
+                                        <label className="form-label-modern font-weight-bold">Contenu "À Propos"</label>
+                                        <div className="bg-white">
+                                            <ReactQuill theme="snow" value={settings.about} onChange={handleQuillChange} />
+                                        </div>
+                                    </div>
+
+                                    <h5 className="mt-5 mb-4 text-dark font-weight-bold">Slider Hero & Caractéristiques</h5>
+                                    <div className="row">
+                                        <div className="col-md-6">
+                                            <div className="form-group mb-3">
+                                                <label className="small font-weight-bold">Titre Slide 2</label>
+                                                <input type="text" name="hero_slide2_title" className="form-control-modern" value={settings.hero_slide2_title} onChange={handleChange} />
+                                            </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <div className="form-group mb-3">
+                                                <label className="small font-weight-bold">Titre Slide 3</label>
+                                                <input type="text" name="hero_slide3_title" className="form-control-modern" value={settings.hero_slide3_title} onChange={handleChange} />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-5 d-flex justify-content-end">
+                                        <button type="submit" className="btn-modern btn-primary-modern px-5 py-2 shadow-sm" disabled={saving}>
+                                            <i className="fa fa-save mr-2"></i> Enregistrer le Design
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
+
+                            {activeTab === 'license' && (
+                                <div className="p-2">
+                                    <div className="d-flex align-items-center mb-5 p-4 rounded-xl shadow-sm" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)', color: 'white', borderRadius: '15px' }}>
+                                        <div className="mr-4 p-3 bg-white bg-opacity-10 rounded-circle" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
+                                            <i className="fa fa-rocket fa-3x" style={{ color: 'var(--cbx-amber)' }}></i>
+                                        </div>
+                                        <div>
+                                            <span className="badge badge-warning mb-2" style={{ background: 'var(--cbx-amber)', color: '#0f172a' }}>
+                                                {quota ? quota.plan_name : 'Forfait inconnu'}
+                                            </span>
+                                            <h3 className="mb-0 font-weight-bold">Abonnement Actif</h3>
+                                            <p className="mb-0 opacity-75 mt-1">
+                                                {license ? `Expire le : ${new Date(license.expires_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}` : 'Pas de licence active'}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <h5 className="mb-4 text-dark font-weight-bold"><i className="fa fa-chart-pie mr-2 text-primary"></i> Utilisation des Ressources</h5>
+
+                                    <div className="row">
+                                        <div className="col-md-6 mb-4">
+                                            <div className="p-4 border rounded bg-light h-100 shadow-sm">
+                                                {quota && renderQuotaBar(quota.courses_used, quota.courses_limit, "Cours Créés")}
+                                                <p className="small text-muted mb-0">
+                                                    Le nombre de cours que vous avez créés dans votre académie.
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-6 mb-4">
+                                            <div className="p-4 border rounded bg-light h-100 shadow-sm">
+                                                {quota && renderQuotaBar(quota.students_used, quota.students_limit, "Étudiants Inscrits")}
+                                                <p className="small text-muted mb-0">
+                                                    Le nombre d'utilisateurs inscrits à vos cours.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-4 alert alert-info border-0 p-4 shadow-sm" style={{ borderRadius: '12px', background: '#f0f9ff' }}>
+                                        <div className="d-flex">
+                                            <i className="fa fa-question-circle fa-2x mr-4 text-info"></i>
+                                            <div>
+                                                <h6 className="font-weight-bold text-info">Besoin de plus de capacité ?</h6>
+                                                <p className="mb-0 text-muted small">
+                                                    Si vous approchez de vos limites, contactez-nous pour passer au forfait supérieur (Enterprise) ou pour personnaliser votre licence actuelle.
+                                                </p>
+                                                <a href="mailto:support@skills.nl" className="btn btn-sm btn-info mt-3 text-white px-4">Contacter le support</a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-
-                                <hr className="my-5" />
-                                <h4 className="mb-4"><i className="fa fa-envelope-open-text mr-2 text-primary"></i> Contact & Support</h4>
-
-                                <div className="row mb-4">
-                                    <div className="col-md-6">
-                                        <div className="form-group">
-                                            <label className="form-label-modern font-weight-bold">Email de Support</label>
-                                            <input
-                                                type="email"
-                                                name="support_email"
-                                                className="form-control-modern"
-                                                value={settings.support_email}
-                                                onChange={handleChange}
-                                                placeholder="Ex: support@votreacademie.nl"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <div className="form-group">
-                                            <label className="form-label-modern font-weight-bold">Téléphone de Support</label>
-                                            <input
-                                                type="text"
-                                                name="support_phone"
-                                                className="form-control-modern"
-                                                value={settings.support_phone}
-                                                onChange={handleChange}
-                                                placeholder="Ex: +1 234 567 890"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <hr className="my-5" />
-                                <h4 className="mb-4"><i className="fa fa-share-alt mr-2 text-primary"></i> Réseaux Sociaux</h4>
-
-                                <div className="form-group mb-3">
-                                    <label className="form-label-modern font-weight-bold">Facebook URL</label>
-                                    <div className="input-group">
-                                        <span className="input-group-text bg-white border-end-0"><i className="fab fa-facebook text-primary"></i></span>
-                                        <input
-                                            type="url"
-                                            name="facebook_url"
-                                            className="form-control form-control-lg border-start-0 ps-0"
-                                            value={settings.facebook_url}
-                                            onChange={handleChange}
-                                            placeholder="https://facebook.com/votre-page"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="form-group mb-3">
-                                    <label className="form-label-modern font-weight-bold">Instagram URL</label>
-                                    <div className="input-group">
-                                        <span className="input-group-text bg-white border-end-0"><i className="fab fa-instagram text-danger"></i></span>
-                                        <input
-                                            type="url"
-                                            name="instagram_url"
-                                            className="form-control form-control-lg border-start-0 ps-0"
-                                            value={settings.instagram_url}
-                                            onChange={handleChange}
-                                            placeholder="https://instagram.com/votre-compte"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="form-group mb-3">
-                                    <label className="form-label-modern font-weight-bold">LinkedIn URL</label>
-                                    <div className="input-group">
-                                        <span className="input-group-text bg-white border-end-0"><i className="fab fa-linkedin text-info"></i></span>
-                                        <input
-                                            type="url"
-                                            name="linkedin_url"
-                                            className="form-control form-control-lg border-start-0 ps-0"
-                                            value={settings.linkedin_url}
-                                            onChange={handleChange}
-                                            placeholder="https://linkedin.com/company/votre-entreprise"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="form-group mb-3">
-                                    <label className="form-label-modern font-weight-bold">Twitter / X URL</label>
-                                    <div className="input-group">
-                                        <span className="input-group-text bg-white border-end-0"><i className="fab fa-twitter text-dark"></i></span>
-                                        <input
-                                            type="url"
-                                            name="twitter_url"
-                                            className="form-control form-control-lg border-start-0 ps-0"
-                                            value={settings.twitter_url}
-                                            onChange={handleChange}
-                                            placeholder="https://twitter.com/votre-compte"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="form-group mb-4">
-                                    <label className="form-label-modern font-weight-bold">YouTube URL</label>
-                                    <div className="input-group">
-                                        <span className="input-group-text bg-white border-end-0"><i className="fab fa-youtube text-danger"></i></span>
-                                        <input
-                                            type="url"
-                                            name="youtube_url"
-                                            className="form-control form-control-lg border-start-0 ps-0"
-                                            value={settings.youtube_url}
-                                            onChange={handleChange}
-                                            placeholder="https://youtube.com/@votre-chaine"
-                                        />
-                                    </div>
-                                </div>
-
-                                <hr className="my-4 border-light" />
-
-                                <div className="d-flex justify-content-end">
-                                    <button type="submit" className="btn-modern btn-primary-modern px-5 py-3 shadow-sm" disabled={saving}>
-                                        {saving ? <><i className="fa fa-spinner fa-spin mr-2"></i> Enregistrement...</> : <><i className="fa fa-save mr-2"></i> Enregistrer les modifications</>}
-                                    </button>
-                                </div>
-                            </form>
+                            )}
                         </div>
                     </div>
                 </div>
 
                 <div className="col-lg-4">
-                    <div className="card-modern text-white mb-4 border-0 shadow-lg" style={{ background: 'linear-gradient(135deg, var(--cbx-navy) 0%, var(--cbx-navy-light) 100%)' }}>
+                    <div className="card-modern text-white mb-4 border-0 shadow-lg" style={{ background: 'linear-gradient(135deg, var(--cbx-navy) 0%, var(--cbx-navy-light) 100%)', borderRadius: '15px' }}>
                         <div className="card-body-modern p-4">
                             <h5 className="font-weight-bold mb-3"><i className="fa fa-rocket mr-2" style={{ color: 'var(--cbx-amber)' }}></i> Conseil Pro</h5>
                             <p className="mb-0" style={{ fontSize: '15px', opacity: 0.95, lineHeight: 1.6 }}>
-                                Une description claire et engageante augmente vos chances de conversion. N'hésitez pas à mettre en avant votre expertise !
+                                Une description claire et engageante augmente vos chances de conversion de 40%. N'hésitez pas à mettre en avant votre expertise unique !
                             </p>
                         </div>
                     </div>
 
-                    <div className="card-modern border-0 shadow-soft">
+                    <div className="card-modern border-0 shadow-soft" style={{ borderRadius: '15px' }}>
                         <div className="card-body-modern p-4">
                             <h6 className="font-weight-bold mb-3 text-dark">Aperçu rapide</h6>
                             <div className="p-3 bg-light rounded border">

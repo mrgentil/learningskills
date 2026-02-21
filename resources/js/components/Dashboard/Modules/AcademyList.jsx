@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 const TIER_BADGES = {
     starter: { label: '🟢 Starter', bg: '#dcfce7', color: '#166534' },
@@ -62,7 +63,7 @@ const AcademyModal = ({ onClose, onSuccess }) => {
             if (error.response && error.response.data.errors) {
                 setErrors(error.response.data.errors);
             } else {
-                alert('Erreur lors de la création.');
+                toast.error('Erreur lors de la création.');
             }
         } finally {
             setLoading(false);

@@ -7,6 +7,7 @@ import {
     ExternalLink, ArrowUpRight
 } from "lucide-react";
 import axios from "axios";
+import { toast } from "sonner";
 
 /**
  * NATIVE DATE FORMATTER
@@ -61,8 +62,9 @@ const OnboardingList = () => {
             if (selectedRequest?.id === id) {
                 setSelectedRequest({ ...selectedRequest, status });
             }
+            toast.success("Statut mis à jour avec succès");
         } catch (err) {
-            alert("Erreur");
+            toast.error("Erreur lors de la mise à jour du statut");
         }
     };
 
@@ -74,8 +76,9 @@ const OnboardingList = () => {
             const resp = await axios.post(`/api/admin/onboarding-requests/${id}/deploy`);
             setDeploymentSuccess(resp.data);
             fetchRequests();
+            toast.success("Académie provisionnée !");
         } catch (err) {
-            alert(err.response?.data?.message || "Erreur lors du déploiement");
+            toast.error(err.response?.data?.message || "Erreur lors du déploiement");
         } finally {
             setDeploying(false);
         }
@@ -194,8 +197,20 @@ const OnboardingList = () => {
                                                 <div style={{ width: '6px', height: '6px', background: '#2563eb', borderRadius: '50%' }}></div> NOUVEAU
                                             </div>
                                         ) : (
-                                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: '#f0fdf4', color: '#16a34a', borderRadius: '10px', fontSize: '10px', fontWeight: 900, border: '1px solid #dcfce7' }}>
-                                                <Rocket style={{ width: '12px', height: '12px' }} /> DÉPLOYÉ
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: '#f0fdf4', color: '#16a34a', borderRadius: '10px', fontSize: '10px', fontWeight: 900, border: '1px solid #dcfce7', width: 'fit-content' }}>
+                                                    <Rocket style={{ width: '12px', height: '12px' }} /> DÉPLOYÉ
+                                                </div>
+                                                {req.academy_url && (
+                                                    <a
+                                                        href={req.academy_url}
+                                                        target="_blank"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        style={{ fontSize: '11px', color: '#3b82f6', fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}
+                                                    >
+                                                        Voir l'académie <ArrowUpRight size={12} />
+                                                    </a>
+                                                )}
                                             </div>
                                         )}
                                     </td>
@@ -258,30 +273,75 @@ const OnboardingList = () => {
                             )}
 
                             <div style={{ marginTop: 'auto', paddingTop: '40px' }}>
-                                <button
-                                    onClick={() => handleDeploy(selectedRequest.id)}
-                                    disabled={deploying}
-                                    style={{
-                                        width: '100%',
-                                        height: '70px',
-                                        borderRadius: '25px',
-                                        background: deploying ? '#94a3b8' : '#0f172a',
-                                        color: 'white',
-                                        fontSize: '14px',
-                                        fontWeight: 900,
-                                        cursor: deploying ? 'not-allowed' : 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '15px',
-                                        boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
-                                        border: 'none',
-                                        opacity: deploying ? 0.7 : 1
-                                    }}
-                                >
-                                    {deploying ? 'PROVISIONING EN COURS...' : <><Rocket /> DÉPLOYER L'ACADÉMIE</>}
-                                </button>
-                                <p style={{ textAlign: 'center', marginTop: '15px', fontSize: '10px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Action irréversible : Créera l'infrastructure technique</p>
+                                {selectedRequest.status === 'deployed' ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                        <div style={{
+                                            width: '100%',
+                                            height: '60px',
+                                            borderRadius: '25px',
+                                            background: '#f0fdf4',
+                                            color: '#16a34a',
+                                            fontSize: '14px',
+                                            fontWeight: 900,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '15px',
+                                            border: '1px solid #dcfce7'
+                                        }}>
+                                            <CheckCircle2 /> ACADÉMIE DÉPLOYÉE
+                                        </div>
+                                        {selectedRequest.academy_url && (
+                                            <a
+                                                href={selectedRequest.academy_url}
+                                                target="_blank"
+                                                style={{
+                                                    width: '100%',
+                                                    height: '60px',
+                                                    borderRadius: '25px',
+                                                    background: '#0f172a',
+                                                    color: 'white',
+                                                    fontSize: '14px',
+                                                    fontWeight: 900,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    gap: '15px',
+                                                    textDecoration: 'none',
+                                                    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
+                                                }}
+                                            >
+                                                VISITER L'ACADÉMIE <ExternalLink size={18} />
+                                            </a>
+                                        )}
+                                        <p style={{ textAlign: 'center', fontSize: '10px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Déployée le {formatDate(selectedRequest.deployed_at)}</p>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={() => handleDeploy(selectedRequest.id)}
+                                        disabled={deploying}
+                                        style={{
+                                            width: '100%',
+                                            height: '70px',
+                                            borderRadius: '25px',
+                                            background: deploying ? '#94a3b8' : '#0f172a',
+                                            color: 'white',
+                                            fontSize: '14px',
+                                            fontWeight: 900,
+                                            cursor: deploying ? 'not-allowed' : 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '15px',
+                                            boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+                                            border: 'none',
+                                            opacity: deploying ? 0.7 : 1
+                                        }}
+                                    >
+                                        {deploying ? 'PROVISIONING EN COURS...' : <><Rocket /> DÉPLOYER L'ACADÉMIE</>}
+                                    </button>
+                                )}
+                                {selectedRequest.status !== 'deployed' && <p style={{ textAlign: 'center', marginTop: '15px', fontSize: '10px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Action irréversible : Créera l'infrastructure technique</p>}
                             </div>
 
                         </div>

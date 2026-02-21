@@ -9,6 +9,7 @@ import {
     Camera, Globe, Clock, MessageSquare
 } from "lucide-react";
 import axios from "axios";
+import { toast } from "sonner";
 
 const STEPS = [
     { id: 1, title: "Général", icon: User },
@@ -105,9 +106,9 @@ const OnboardingPage = () => {
         } catch (err: any) {
             if (err.response?.status === 422) {
                 setErrors(err.response.data.errors);
-                alert("Veuillez corriger les erreurs dans le formulaire.");
+                toast.error("Veuillez corriger les erreurs dans le formulaire.");
             } else {
-                alert("Une erreur est survenue lors de la soumission.");
+                toast.error("Une erreur est survenue lors de la soumission.");
             }
         } finally {
             setLoading(false);

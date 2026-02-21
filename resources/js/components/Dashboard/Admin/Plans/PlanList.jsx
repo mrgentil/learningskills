@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from 'sonner';
 import PlanModal from './PlanModal';
 
 const TIER_BADGES = {
@@ -40,9 +41,10 @@ const PlanList = () => {
         try {
             await axios.delete(`/api/admin/plans/${planId}`);
             fetchPlans();
+            toast.success('Forfait supprimé');
         } catch (error) {
             console.error('Error deleting plan:', error);
-            alert('Impossible de supprimer ce forfait.');
+            toast.error('Impossible de supprimer ce forfait.');
         }
     };
 

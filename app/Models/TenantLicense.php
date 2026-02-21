@@ -15,6 +15,8 @@ class TenantLicense extends Model
         'renewed_at',
         'maintenance_included',
         'rights',
+        'max_courses',
+        'max_students',
         'status',
         'notes',
     ];

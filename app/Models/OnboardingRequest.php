@@ -34,6 +34,8 @@ class OnboardingRequest extends Model
         'selected_plan',
         'payment_method',
         'status',
+        'deployed_at',
+        'academy_url',
     ];
 
     protected $casts = [
@@ -46,5 +48,6 @@ class OnboardingRequest extends Model
         'will_sell_courses' => 'boolean',
         'has_stripe' => 'boolean',
         'target_launch_date' => 'date',
+        'deployed_at' => 'datetime',
     ];
 }

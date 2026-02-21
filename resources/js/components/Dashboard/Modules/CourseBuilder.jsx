@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { toast } from 'sonner';
 
 const CourseBuilder = () => {
     const { courseId } = useParams();
@@ -104,16 +105,17 @@ const CourseBuilder = () => {
             if (res.ok) {
                 if (courseId === 'new') {
                     navigate(`/dashboard/courses/${data.course.id}/builder`);
+                    toast.success('Cours créé avec succès');
                 } else {
-                    setCourse({ ...course, ...data.course }); // Update state with saved data
-                    alert('Cours sauvegardé !');
+                    setCourse({ ...course, ...data.course });
+                    toast.success('Cours sauvegardé !');
                 }
             } else {
-                alert(data.message || 'Erreur lors de la sauvegarde');
+                toast.error(data.message || 'Erreur lors de la sauvegarde');
             }
         } catch (err) {
             console.error(err);
-            alert('Erreur réseau');
+            toast.error('Erreur réseau');
         } finally {
             setSaving(false);
         }
@@ -135,14 +137,15 @@ const CourseBuilder = () => {
             });
             if (res.ok) {
                 setNewModuleTitle('');
-                fetchCourse(); // Refresh curriculum
+                fetchCourse();
+                toast.success('Module ajouté');
             } else {
                 const errData = await res.json();
-                alert("Erreur lors de la création du module: " + (errData.message || res.statusText));
+                toast.error("Erreur: " + (errData.message || res.statusText));
             }
         } catch (err) {
             console.error(err);
-            alert("Une erreur réseau est survenue.");
+            toast.error("Une erreur réseau est survenue.");
         }
     };
 
@@ -201,13 +204,14 @@ const CourseBuilder = () => {
             if (res.ok) {
                 setShowLessonModal(false);
                 fetchCourse();
+                toast.success(isEditingLesson ? 'Leçon modifiée' : 'Leçon ajoutée');
             } else {
                 const errData = await res.json();
-                alert("Erreur lors de la sauvegarde de la leçon: " + (errData.message || res.statusText));
+                toast.error("Erreur: " + (errData.message || res.statusText));
             }
         } catch (err) {
             console.error(err);
-            alert("Une erreur réseau est survenue.");
+            toast.error("Une erreur réseau est survenue.");
         }
     };
 

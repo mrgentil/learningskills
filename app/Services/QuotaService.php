@@ -18,9 +18,6 @@ class QuotaService
      */
     public function canCreateCourse(Tenant $tenant): bool
     {
-        if ($this->hasActiveLicense($tenant)) {
-            return true; // licence active = droits étendus
-        }
         $usage = $this->getUsage($tenant);
         if ($usage['courses_limit'] === null) {
             return true; // illimité
@@ -34,9 +31,6 @@ class QuotaService
      */
     public function canEnrollStudent(Tenant $tenant, ?int $existingUserId = null): bool
     {
-        if ($this->hasActiveLicense($tenant)) {
-            return true; // licence active = droits étendus
-        }
         $usage = $this->getUsage($tenant);
         if ($usage['students_limit'] === null) {
             return true; // illimité
@@ -69,41 +63,41 @@ class QuotaService
             ->where('tenant_id', $tenant->id)
             ->count(DB::raw('DISTINCT user_id'));
 
-        // Licence active = droits étendus (affichage "Licence" + pas de limite)
-        if ($this->hasActiveLicense($tenant)) {
-            $license = $tenant->licenses->first(fn ($l) => $l->isActive());
-            return [
-                'courses_used' => $coursesUsed,
-                'courses_limit' => null,
-                'students_used' => $studentsUsed,
-                'students_limit' => null,
-                'plan_name' => $license ? $license->name : 'Licence',
-                'license_active' => true,
-            ];
-        }
-
+        $license = $tenant->licenses()->where('status', 'active')->first();
+        $activeLicense = $license && $license->isActive();
         $plan = $tenant->plan;
+
+        // 1. Déterminer les limites (Priorité : Licence Override > Plan Default)
         $coursesLimit = null;
         $studentsLimit = null;
-        $planName = 'Aucun plan';
 
-        if ($plan) {
-            $planName = $plan->name;
-            if (isset($plan->max_courses) && (int) $plan->max_courses > 0) {
-                $coursesLimit = (int) $plan->max_courses;
-            }
-            if (isset($plan->max_students) && (int) $plan->max_students > 0) {
-                $studentsLimit = (int) $plan->max_students;
-            }
+        if ($activeLicense) {
+            // Si la licence a une valeur spécifique (non null), on l'utilise comme override
+            $coursesLimit = $license->max_courses;
+            $studentsLimit = $license->max_students;
         }
+
+        // Si la licence n'a pas d'override, on tombe sur le Plan
+        if ($coursesLimit === null && $plan) {
+            $coursesLimit = $plan->max_courses;
+        }
+        if ($studentsLimit === null && $plan) {
+            $studentsLimit = $plan->max_students;
+        }
+
+        // 2. Normalisation Final : 0 ou null => null (Illimité)
+        $finalCoursesLimit = ((int)$coursesLimit <= 0) ? null : (int)$coursesLimit;
+        $finalStudentsLimit = ((int)$studentsLimit <= 0) ? null : (int)$studentsLimit;
+
+        $planName = $activeLicense ? ($license->name ?? 'Licence Active') : ($plan->name ?? 'Aucun plan');
 
         return [
             'courses_used' => $coursesUsed,
-            'courses_limit' => $coursesLimit,
+            'courses_limit' => $finalCoursesLimit,
             'students_used' => $studentsUsed,
-            'students_limit' => $studentsLimit,
+            'students_limit' => $finalStudentsLimit,
             'plan_name' => $planName,
-            'license_active' => false,
+            'license_active' => $activeLicense,
         ];
     }
 

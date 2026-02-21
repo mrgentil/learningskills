@@ -2,6 +2,7 @@ import React from 'react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import { UserProvider, useUser } from './UserContext';
+import { Toaster } from 'sonner';
 import './Dashboard.css';
 
 const DashboardContent = ({ children }) => {
@@ -37,6 +38,7 @@ const DashboardContent = ({ children }) => {
 const DashboardLayout = ({ children }) => {
     return (
         <UserProvider>
+            <Toaster position="top-right" richColors closeButton />
             <DashboardContent>
                 {children}
             </DashboardContent>

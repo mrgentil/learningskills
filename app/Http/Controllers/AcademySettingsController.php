@@ -16,11 +16,31 @@ class AcademySettingsController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $tenant = $user->ownedTenants()->first();
+        
+        // Resolve Tenant: session (set by middleware) or fallback to first owned
+        $tenantId = session('tenant_id');
+        $tenant = null;
+
+        if ($tenantId) {
+            if ($user->is_super_admin) {
+                $tenant = \App\Models\Tenant::find($tenantId);
+            } else {
+                $tenant = $user->ownedTenants()->where('id', $tenantId)->first() 
+                       ?? $user->tenants()->where('tenants.id', $tenantId)->first();
+            }
+        }
+
+        if (!$tenant) {
+            $tenant = $user->ownedTenants()->first();
+        }
 
         if (!$tenant) {
             return response()->json(['error' => 'Academy not found'], 404);
         }
+
+        $tenant->load(['plan', 'licenses']);
+        $quota = app(\App\Services\QuotaService::class)->getUsage($tenant);
+        $activeLicense = $tenant->activeLicense;
 
         return response()->json([
             'id' => $tenant->id,
@@ -57,6 +77,14 @@ class AcademySettingsController extends Controller
             'feature3_desc' => $tenant->data['feature3_desc'] ?? 'Chaque formation terminée vous donne droit à une certification officielle.',
             
             'stat_satisfaction_percent' => $tenant->data['stat_satisfaction_percent'] ?? '99',
+
+            // License & Quota Info
+            'license' => $activeLicense ? [
+                'name' => $activeLicense->name,
+                'expires_at' => $activeLicense->expires_at->toIso8601String(),
+                'status' => $activeLicense->status,
+            ] : null,
+            'quota' => $quota,
         ]);
     }
 
@@ -66,7 +94,23 @@ class AcademySettingsController extends Controller
     public function update(Request $request)
     {
         $user = Auth::user();
-        $tenant = $user->ownedTenants()->first();
+        
+        // Same resolution logic as index
+        $tenantId = session('tenant_id');
+        $tenant = null;
+
+        if ($tenantId) {
+            if ($user->is_super_admin) {
+                $tenant = \App\Models\Tenant::find($tenantId);
+            } else {
+                $tenant = $user->ownedTenants()->where('id', $tenantId)->first() 
+                       ?? $user->tenants()->where('tenants.id', $tenantId)->first();
+            }
+        }
+
+        if (!$tenant) {
+            $tenant = $user->ownedTenants()->first();
+        }
 
         if (!$tenant) {
             Log::error('AcademySettings: Tenant not found for user ' . $user->id);
