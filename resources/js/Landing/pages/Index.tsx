@@ -11,25 +11,37 @@ import TrustSection from "@/components/TrustSection";
 import FinalCTASection from "@/components/FinalCTASection";
 import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
+import OnboardingPage from "./OnboardingPage";
+import { Routes, Route } from "react-router-dom";
+
+const LandingSections = () => (
+  <>
+    <HeroSection />
+    <ProblemSection />
+    <SolutionSection />
+    <FeaturesSection />
+    <HowItWorksSection />
+    <WhoItsForSection />
+    <ComparisonSection />
+    <PackagesSection />
+    <TrustSection />
+    <FinalCTASection />
+    <FAQSection />
+  </>
+);
 
 const Index = () => {
   return (
     <div className="min-h-screen">
       <Navbar />
-      <HeroSection />
-      <ProblemSection />
-      <SolutionSection />
-      <FeaturesSection />
-      <HowItWorksSection />
-      <WhoItsForSection />
-      <ComparisonSection />
-      <PackagesSection />
-      <TrustSection />
-      <FinalCTASection />
-      <FAQSection />
+      <Routes>
+        <Route path="/" element={<LandingSections />} />
+        <Route path="/onboarding" element={<OnboardingPage />} />
+      </Routes>
       <Footer />
     </div>
   );
 };
 
 export default Index;
+

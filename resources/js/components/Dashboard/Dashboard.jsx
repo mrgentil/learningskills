@@ -14,6 +14,7 @@ import InstructorList from './Owner/InstructorList';
 import PageList from './Owner/PageList';
 import PageEditor from './Owner/PageEditor';
 import UserList from './Admin/UserList';
+import OnboardingList from './Admin/OnboardingList';
 
 const Dashboard = () => {
     console.log('Dashboard component rendering...');
@@ -35,6 +36,7 @@ const Dashboard = () => {
                     <Route path="/dashboard/settings" element={<AcademySettings />} />
 
                     {/* Platform Management (Super Admin) */}
+                    <Route path="/dashboard/admin/onboarding" element={<OnboardingList />} />
                     <Route path="/dashboard/admin/tenants" element={<AcademyList />} />
                     <Route path="/dashboard/admin/plans" element={<PlanList />} />
                     <Route path="/dashboard/admin/users" element={<UserList />} />

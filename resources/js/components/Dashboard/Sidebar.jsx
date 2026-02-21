@@ -9,6 +9,7 @@ const Sidebar = ({ role }) => {
         // ... (unchanged)
         super_admin: [
             { id: 'dash', label: 'Plateforme', path: '/dashboard', icon: 'fa-globe' },
+            { id: 'onboarding', label: 'Demandes Onboarding', path: '/dashboard/admin/onboarding', icon: 'fa-list-alt' },
             { id: 'tenants', label: 'Académies', path: '/dashboard/admin/tenants', icon: 'fa-university' },
             { id: 'plans', label: 'Plans & Tarifs', path: '/dashboard/admin/plans', icon: 'fa-tags' },
             { id: 'users', label: 'Utilisateurs Globaux', path: '/dashboard/admin/users', icon: 'fa-user-secret' },

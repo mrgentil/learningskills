@@ -83,7 +83,20 @@ Route::middleware(['auth'])->prefix('api/admin')->group(function () {
     Route::apiResource('plans', App\Http\Controllers\Admin\PlanController::class);
     Route::apiResource('tenants', App\Http\Controllers\Admin\TenantController::class)->only(['index', 'store', 'show', 'update']);
     Route::apiResource('users', App\Http\Controllers\Admin\UserController::class)->only(['index', 'show']);
+    
+    // Onboarding Management
+    Route::get('/onboarding-requests', [App\Http\Controllers\OnboardingController::class, 'index']);
+    Route::get('/onboarding-requests/{id}', [App\Http\Controllers\OnboardingController::class, 'show']);
+    Route::put('/onboarding-requests/{id}/status', [App\Http\Controllers\OnboardingController::class, 'updateStatus']);
 });
+
+// Public Onboarding Routes
+Route::get('/onboarding', function () {
+    $plans = \App\Models\Plan::where('is_active', true)->get();
+    return view('onboarding', compact('plans'));
+})->name('onboarding');
+
+Route::post('/api/onboarding', [App\Http\Controllers\OnboardingController::class, 'store']);
 
 // Stripe Webhooks (Excluded from CSRF in bootstrap/app.php)
 Route::post('/stripe/webhook', [App\Http\Controllers\WebhookController::class, 'handleWebhook']);

@@ -118,7 +118,7 @@ const PackagesSection = () => {
                   ))}
                 </ul>
 
-                <a href="#contact" className="block mt-auto">
+                <a href={`/onboarding?plan=${pkg.tier || pkg.slug}`} className="block mt-auto">
                   <Button
                     className={`w-full font-semibold ${isHighlighted
                       ? "bg-gradient-accent text-accent-foreground hover:opacity-90"
