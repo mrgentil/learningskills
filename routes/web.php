@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     $plans = \App\Models\Plan::where('is_active', true)->get();
-    return view('landing', compact('plans'));
+    return view('landing_react', compact('plans'));
 });
 
 Auth::routes();
