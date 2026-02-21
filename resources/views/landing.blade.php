@@ -297,38 +297,51 @@
                                     </div>
                                     <div class="row pricing-row">
                                         @foreach ($plans as $plan)
+                                            @php
+                                                $isOneTime = ($plan->pricing_type ?? 'one_time') === 'one_time';
+                                                $tierColors = [
+                                                    'starter' => '#10b981',
+                                                    'pro' => '#3b82f6',
+                                                    'enterprise' => '#8b5cf6',
+                                                ];
+                                                $tierColor = $tierColors[$plan->tier ?? ''] ?? '#ff007a';
+                                            @endphp
                                             <div class="col-md-4 col-sm-12 col-xs-12 xs-text-center">
-                                                <div class="cbx-singlepricing">
-                                                    <div class="cbx-featured-header">
+                                                <div class="cbx-singlepricing" @if($plan->tier === 'pro') style="border: 2px solid {{ $tierColor }}; transform: scale(1.03);" @endif>
+                                                    <div class="cbx-featured-header" style="background: {{ $tierColor }};">
                                                         <h4 class="uppercase">{{ $plan->name }}</h4>
                                                         <div class="cbx-doller">
-                                                            <p>${{ intval($plan->price) }} <span>/ Mois</span></p>
+                                                            @if($isOneTime)
+                                                                <p>${{ number_format($plan->price, 0, ',', ' ') }} <span>CAD</span></p>
+                                                                <small style="color: rgba(255,255,255,0.8); font-size: 13px;">Paiement unique (incluant installation)</small>
+                                                            @else
+                                                                <p>${{ intval($plan->price) }} <span>/ {{ $plan->interval === 'year' ? 'An' : 'Mois' }}</span></p>
+                                                            @endif
                                                         </div>
-                                                        @if ($plan->slug === 'pro')
+                                                        @if ($plan->tier === 'pro')
                                                             <div class="cbx-recommended">
-                                                                <div class="ribbon"><span>hot</span></div>
+                                                                <div class="ribbon"><span>⭐ populaire</span></div>
                                                             </div>
                                                         @endif
                                                     </div>
                                                     <ul class="list-unstyled cbx-featured-list">
                                                         @if (is_array($plan->features))
                                                             @foreach ($plan->features as $feature)
-                                                                <li>{{ $feature }}</li>
+                                                                <li>✓ {{ $feature }}</li>
                                                             @endforeach
                                                         @elseif(is_string($plan->features))
                                                             @foreach (explode("\n", $plan->features) as $feature)
-                                                                <li>{{ $feature }}</li>
+                                                                <li>✓ {{ $feature }}</li>
                                                             @endforeach
+                                                        @endif
+                                                        @if($isOneTime && $plan->maintenance_price > 0)
+                                                            <li style="color: #64748b; font-style: italic; margin-top: 10px;">
+                                                                Maintenance annuelle recommandée : {{ number_format($plan->maintenance_price, 0, ',', ' ') }} $/an
+                                                            </li>
                                                         @endif
                                                     </ul>
                                                     <p class="price-button">
-                                                        @guest
-                                                            <a href="{{ route('register') }}">Commencer</a>
-                                                        @else
-                                                            <a
-                                                                href="{{ route('checkout.session', ['plan_slug' => $plan->slug]) }}">Choisir
-                                                                {{ $plan->name }}</a>
-                                                        @endguest
+                                                        <a href="#cbx-contact" class="gotome" style="background: {{ $tierColor }};">Nous contacter</a>
                                                     </p>
                                                 </div>
                                             </div>

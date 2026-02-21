@@ -81,7 +81,7 @@ Route::get('/academy/{slug}/p/{page_slug}', [App\Http\Controllers\PageController
 // Admin API Routes
 Route::middleware(['auth'])->prefix('api/admin')->group(function () {
     Route::apiResource('plans', App\Http\Controllers\Admin\PlanController::class);
-    Route::apiResource('tenants', App\Http\Controllers\Admin\TenantController::class)->only(['index', 'show', 'update']);
+    Route::apiResource('tenants', App\Http\Controllers\Admin\TenantController::class)->only(['index', 'store', 'show', 'update']);
     Route::apiResource('users', App\Http\Controllers\Admin\UserController::class)->only(['index', 'show']);
 });
 

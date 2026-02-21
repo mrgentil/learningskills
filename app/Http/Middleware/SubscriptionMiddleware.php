@@ -94,7 +94,7 @@ class SubscriptionMiddleware
                     $hasStripeSubscription = $owner && $owner->subscribed('default');
 
                     if (!$hasActiveLicense && !$hasStripeSubscription) {
-                        return $denyAccess('Un abonnement actif est requis pour accéder au dashboard.');
+                        return $denyAccess('Une licence active est requise pour accéder au dashboard.');
                     }
                 }
             }
