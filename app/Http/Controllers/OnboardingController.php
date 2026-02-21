@@ -3,8 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\OnboardingRequest;
+use App\Models\Tenant;
+use App\Models\User;
+use App\Models\Plan;
+use App\Models\TenantLicense;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class OnboardingController extends Controller
 {
@@ -100,6 +107,100 @@ class OnboardingController extends Controller
         $onboardingRequest->update($validated);
 
         return response()->json($onboardingRequest);
+    }
+
+    /**
+     * Admin: Deploy an academy from an onboarding request.
+     */
+    public function deploy(Request $request, $id)
+    {
+        $this->authorizeAdmin();
+
+        $onboardingRequest = OnboardingRequest::findOrFail($id);
+
+        if ($onboardingRequest->status === 'deployed') {
+            return response()->json(['message' => 'Cette académie a déjà été déployée.'], 422);
+        }
+
+        return DB::transaction(function () use ($onboardingRequest) {
+            // 1. Find or create the owner user
+            $user = User::where('email', $onboardingRequest->email)->first();
+            if (!$user) {
+                $user = User::create([
+                    'name' => $onboardingRequest->contact_name,
+                    'email' => $onboardingRequest->email,
+                    'password' => Hash::make('password'), // Client must reset
+                ]);
+            }
+
+            // 2. Resolve Plan
+            // Mapping onboarding plan names (starter, pro, enterprise) to potential tiers or names in the plans table
+            $plan = Plan::where('tier', $onboardingRequest->selected_plan)
+                ->orWhere('name', 'like', '%' . $onboardingRequest->selected_plan . '%')
+                ->first();
+
+            if (!$plan) {
+                // Fallback to first plan if none matches (should be handled better in production)
+                $plan = Plan::first();
+            }
+
+            // 3. Create the tenant
+            $slug = Str::slug($onboardingRequest->academy_name);
+            
+            // Ensure unique slug
+            $baseSlug = $slug;
+            $counter = 1;
+            while (Tenant::where('slug', $slug)->exists()) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+
+            $tenant = Tenant::create([
+                'owner_id' => $user->id,
+                'plan_id' => $plan ? $plan->id : null,
+                'name' => $onboardingRequest->academy_name,
+                'slug' => $slug,
+                'custom_domain' => $onboardingRequest->domain_name,
+                'is_active' => true,
+                'data' => [
+                    'onboarding_id' => $onboardingRequest->id,
+                    'organization' => $onboardingRequest->organization_name,
+                    'phone' => $onboardingRequest->phone,
+                ]
+            ]);
+
+            // 4. Attach owner to pivot
+            $tenant->users()->attach($user->id, [
+                'role' => 'owner',
+                'status' => 'active',
+                'joined_at' => now(),
+            ]);
+
+            // 5. Create the initial license (12 months)
+            if ($plan) {
+                TenantLicense::create([
+                    'tenant_id' => $tenant->id,
+                    'name' => "Licence {$plan->name} — {$tenant->name}",
+                    'starts_at' => now(),
+                    'expires_at' => now()->addMonths(12),
+                    'maintenance_included' => true,
+                    'rights' => $plan->features ?? [],
+                    'status' => 'active',
+                ]);
+            }
+
+            // 6. Update onboarding request status
+            $onboardingRequest->update(['status' => 'deployed']);
+
+            return response()->json([
+                'message' => 'Académie déployée avec succès.',
+                'tenant_url' => url("/academy/{$tenant->slug}"),
+                'credentials' => [
+                    'email' => $user->email,
+                    'password' => $user->wasRecentlyCreated ? 'password' : '(Existant)',
+                ]
+            ]);
+        });
     }
 
     private function authorizeAdmin()

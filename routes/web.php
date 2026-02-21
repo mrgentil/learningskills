@@ -88,6 +88,7 @@ Route::middleware(['auth'])->prefix('api/admin')->group(function () {
     Route::get('/onboarding-requests', [App\Http\Controllers\OnboardingController::class, 'index']);
     Route::get('/onboarding-requests/{id}', [App\Http\Controllers\OnboardingController::class, 'show']);
     Route::put('/onboarding-requests/{id}/status', [App\Http\Controllers\OnboardingController::class, 'updateStatus']);
+    Route::post('/onboarding-requests/{id}/deploy', [App\Http\Controllers\OnboardingController::class, 'deploy']);
 });
 
 // Public Onboarding Routes

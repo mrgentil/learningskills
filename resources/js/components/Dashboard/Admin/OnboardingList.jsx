@@ -33,6 +33,8 @@ const TIER_CONFIG = {
 const OnboardingList = () => {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [deploying, setDeploying] = useState(false);
+    const [deploymentSuccess, setDeploymentSuccess] = useState(null);
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
@@ -61,6 +63,21 @@ const OnboardingList = () => {
             }
         } catch (err) {
             alert("Erreur");
+        }
+    };
+
+    const handleDeploy = async (id) => {
+        if (!confirm("Voulez-vous vraiment générer l'infrastructure pour cette académie ?")) return;
+
+        setDeploying(true);
+        try {
+            const resp = await axios.post(`/api/admin/onboarding-requests/${id}/deploy`);
+            setDeploymentSuccess(resp.data);
+            fetchRequests();
+        } catch (err) {
+            alert(err.response?.data?.message || "Erreur lors du déploiement");
+        } finally {
+            setDeploying(false);
         }
     };
 
@@ -242,15 +259,73 @@ const OnboardingList = () => {
 
                             <div style={{ marginTop: 'auto', paddingTop: '40px' }}>
                                 <button
-                                    onClick={() => updateStatus(selectedRequest.id, 'deployed')}
-                                    style={{ width: '100%', height: '70px', borderRadius: '25px', background: '#0f172a', color: 'white', fontSize: '14px', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', border: 'none' }}
+                                    onClick={() => handleDeploy(selectedRequest.id)}
+                                    disabled={deploying}
+                                    style={{
+                                        width: '100%',
+                                        height: '70px',
+                                        borderRadius: '25px',
+                                        background: deploying ? '#94a3b8' : '#0f172a',
+                                        color: 'white',
+                                        fontSize: '14px',
+                                        fontWeight: 900,
+                                        cursor: deploying ? 'not-allowed' : 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '15px',
+                                        boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+                                        border: 'none',
+                                        opacity: deploying ? 0.7 : 1
+                                    }}
                                 >
-                                    <Rocket /> DÉPLOYER L'ACADÉMIE
+                                    {deploying ? 'PROVISIONING EN COURS...' : <><Rocket /> DÉPLOYER L'ACADÉMIE</>}
                                 </button>
                                 <p style={{ textAlign: 'center', marginTop: '15px', fontSize: '10px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Action irréversible : Créera l'infrastructure technique</p>
                             </div>
 
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* --- SUCCESS MODAL --- */}
+            {deploymentSuccess && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(10px)' }}></div>
+                    <div style={{ position: 'relative', width: '100%', maxWidth: '500px', background: 'white', borderRadius: '40px', padding: '50px', textAlign: 'center', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}>
+                        <div style={{ width: '80px', height: '80px', background: '#ecfdf5', color: '#10b981', borderRadius: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 30px' }}>
+                            <CheckCircle2 style={{ width: '40px', height: '40px' }} />
+                        </div>
+                        <h2 style={{ fontSize: '28px', fontWeight: 950, color: '#0f172a', marginBottom: '10px', letterSpacing: '-1px' }}>Félicitations !</h2>
+                        <p style={{ color: '#64748b', fontWeight: 600, marginBottom: '40px' }}>L'académie a été provisionnée avec succès.</p>
+
+                        <div style={{ background: '#f8fafc', padding: '25px', borderRadius: '25px', textAlign: 'left', marginBottom: '40px', border: '1px solid #e2e8f0' }}>
+                            <p style={{ margin: '0 0 10px', fontSize: '10px', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase' }}>Accès Administrateur</p>
+                            <div style={{ marginBottom: '15px' }}>
+                                <small style={{ display: 'block', color: '#64748b', fontSize: '11px', fontWeight: 700 }}>URL de l'Académie</small>
+                                <a href={deploymentSuccess.tenant_url} target="_blank" style={{ color: '#3b82f6', fontWeight: 800, fontSize: '14px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                    {deploymentSuccess.tenant_url} <ExternalLink size={14} />
+                                </a>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>
+                                <div>
+                                    <small style={{ display: 'block', color: '#64748b', fontSize: '11px', fontWeight: 700 }}>Email</small>
+                                    <span style={{ fontWeight: 800, fontSize: '14px', color: '#0f172a' }}>{deploymentSuccess.credentials.email}</span>
+                                </div>
+                                <div>
+                                    <small style={{ display: 'block', color: '#64748b', fontSize: '11px', fontWeight: 700 }}>MDP (Temp)</small>
+                                    <span style={{ fontWeight: 800, fontSize: '14px', color: '#f59e0b' }}>{deploymentSuccess.credentials.password}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => { setDeploymentSuccess(null); setSelectedRequest(null); }}
+                            style={{ width: '100%', height: '60px', borderRadius: '20px', background: '#0f172a', color: 'white', fontWeight: 900, border: 'none', cursor: 'pointer' }}
+                        >
+                            RETOUR AU PIPELINE
+                        </button>
                     </div>
                 </div>
             )}
