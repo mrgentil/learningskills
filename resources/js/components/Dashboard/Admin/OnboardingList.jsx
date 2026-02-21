@@ -5,7 +5,7 @@ import {
     Archive, MoreVertical, Eye, Search,
     Filter, X, Shield, Sparkles, Crown,
     TrendingUp, Users, CreditCard, Rocket,
-    ChevronRight, ArrowUpRight
+    ChevronRight, ArrowUpRight, BarChart3
 } from "lucide-react";
 import axios from "axios";
 
@@ -31,9 +31,9 @@ const TIER_ICONS = {
 };
 
 const TIER_COLORS = {
-    starter: { text: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-200" },
-    pro: { text: "text-blue-700", bg: "bg-blue-100", border: "border-blue-200" },
-    enterprise: { text: "text-purple-700", bg: "bg-purple-100", border: "border-purple-200" },
+    starter: { text: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100", accent: "bg-emerald-500" },
+    pro: { text: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100", accent: "bg-blue-500" },
+    enterprise: { text: "text-purple-600", bg: "bg-purple-50", border: "border-purple-100", accent: "bg-purple-500" },
 };
 
 const OnboardingList = () => {
@@ -71,190 +71,160 @@ const OnboardingList = () => {
         }
     };
 
-    // Stats calculations
     const stats = useMemo(() => {
         return {
             total: requests.length,
             new: requests.filter(r => r.status === 'new').length,
-            contacted: requests.filter(r => r.status === 'contacted').length,
             deployed: requests.filter(r => r.status === 'deployed').length,
-            proPlus: requests.filter(r => r.selected_plan === 'pro' || r.selected_plan === 'enterprise').length,
+            conversion: requests.length > 0 ? Math.round((requests.filter(r => r.status === 'deployed').length / requests.length) * 100) : 0
         };
     }, [requests]);
 
-    // Filtering logic
     const filteredRequests = useMemo(() => {
         return requests.filter(req => {
             const matchesSearch =
                 req.organization_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 req.contact_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 req.email.toLowerCase().includes(searchTerm.toLowerCase());
-
             const matchesStatus = statusFilter === "all" || req.status === statusFilter;
             const matchesPlan = planFilter === "all" || req.selected_plan === planFilter;
-
             return matchesSearch && matchesStatus && matchesPlan;
         });
     }, [requests, searchTerm, statusFilter, planFilter]);
 
     const getStatusBadge = (status) => {
         switch (status) {
-            case "new": return <span className="px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></div> Nouveau</span>;
-            case "contacted": return <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-wider">Contacté</span>;
-            case "deployed": return <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-wider">Déployé</span>;
-            case "archived": return <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider">Archivé</span>;
+            case "new": return <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider border border-blue-100 flex items-center gap-1.5 w-fit"><span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span> Nouveau</span>;
+            case "contacted": return <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-600 text-[10px] font-bold uppercase tracking-wider border border-amber-100 w-fit">En attente</span>;
+            case "deployed": return <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase tracking-wider border border-emerald-100 w-fit">Déployé</span>;
+            case "archived": return <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider border border-slate-200 w-fit">Archivé</span>;
             default: return null;
         }
     };
 
     if (loading) return (
-        <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-            <Rocket className="w-12 h-12 text-primary/20 animate-bounce" />
-            <p className="text-muted-foreground animate-pulse font-medium">Récupération des prospects...</p>
+        <div className="flex flex-col items-center justify-center min-h-[500px]">
+            <div className="relative">
+                <div className="w-16 h-16 border-4 border-slate-200 border-t-primary rounded-full animate-spin"></div>
+                <Rocket className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-primary" />
+            </div>
+            <p className="mt-6 text-slate-500 font-bold uppercase tracking-[0.2em] text-xs">Initialisation du Pipeline...</p>
         </div>
     );
 
     return (
-        <div className="space-y-8 pb-12">
-            {/* HEADER & STATS */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700">
+            {/* TOP HEADER */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-8">
                 <div>
-                    <h1 className="text-3xl font-extrabold font-display tracking-tight text-slate-900">Pipeline Onboarding</h1>
-                    <p className="text-slate-500 mt-1 font-medium">Suivez et convertissez vos prospects en académies actives.</p>
+                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">Onboarding <span className="text-primary">&</span> Pipeline</h1>
+                    <p className="text-slate-500 font-medium">Gestion des nouveaux clients et déploiement stratégique.</p>
                 </div>
-
-                <div className="flex flex-wrap gap-4">
-                    <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 min-w-[140px]">
-                        <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
-                            <Users className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-black text-slate-900">{stats.total}</div>
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Total</div>
-                        </div>
-                    </div>
-                    <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 min-w-[140px]">
-                        <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
-                            <Clock className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-black text-slate-900">{stats.new}</div>
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">À Traiter</div>
-                        </div>
-                    </div>
-                    <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 min-w-[140px]">
-                        <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-                            <CheckCircle2 className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-black text-slate-900">{stats.deployed}</div>
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Actives</div>
-                        </div>
-                    </div>
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-400 bg-slate-50 px-4 py-2 rounded-full border border-slate-100">
+                    <Clock className="w-3.5 h-3.5" />
+                    MIS À JOUR IL Y A 1 MIN
                 </div>
             </div>
 
-            {/* FILTERS BAR */}
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center">
-                <div className="relative flex-grow w-full">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input
-                        type="text"
-                        placeholder="Rechercher une organisation, contact ou email..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full h-11 pl-11 pr-4 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all text-sm outline-none"
-                    />
-                    {searchTerm && (
-                        <button onClick={() => setSearchTerm("")} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-200 rounded-full transition-colors">
-                            <X className="w-3 h-3 text-slate-500" />
-                        </button>
-                    )}
-                </div>
-
-                <div className="flex gap-2 w-full md:w-auto">
-                    <div className="relative flex-grow md:flex-grow-0">
-                        <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            className="h-11 pl-9 pr-8 rounded-xl bg-slate-50 border-transparent text-sm font-semibold appearance-none cursor-pointer hover:bg-slate-100 transition-colors outline-none w-full"
-                        >
-                            <option value="all">Tous les Statuts</option>
-                            <option value="new">Nouveaux</option>
-                            <option value="contacted">Contactés</option>
-                            <option value="deployed">Déployés</option>
-                            <option value="archived">Archivés</option>
-                        </select>
+            {/* KEY STATS CARDS */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {[
+                    { label: "Total Leads", value: stats.total, icon: Users, color: "blue", trend: "+12%" },
+                    { label: "À Traiter", value: stats.new, icon: Clock, color: "amber", trend: "-2" },
+                    { label: "Déployés", value: stats.deployed, icon: CheckCircle2, color: "emerald", trend: "+5%" },
+                    { label: "Conversion", value: `${stats.conversion}%`, icon: BarChart3, color: "purple", trend: "Stable" },
+                ].map((s, i) => (
+                    <div key={i} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden flex flex-col justify-between group hover:shadow-xl transition-all duration-300">
+                        <div className={`absolute top-0 right-0 w-24 h-24 bg-${s.color}-50 rounded-full translate-x-10 -translate-y-10 group-hover:scale-150 transition-transform duration-500`}></div>
+                        <div className="flex justify-between items-start relative mb-4">
+                            <div className={`p-3 rounded-2xl bg-${s.color}-50 text-${s.color}-600`}>
+                                <s.icon className="w-6 h-6" />
+                            </div>
+                            <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-50 text-slate-400">{s.trend}</span>
+                        </div>
+                        <div className="relative">
+                            <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider">{s.label}</h4>
+                            <div className="text-4xl font-black text-slate-900 mt-1">{s.value}</div>
+                        </div>
                     </div>
-
-                    <div className="relative flex-grow md:flex-grow-0">
-                        <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                        <select
-                            value={planFilter}
-                            onChange={(e) => setPlanFilter(e.target.value)}
-                            className="h-11 pl-9 pr-8 rounded-xl bg-slate-50 border-transparent text-sm font-semibold appearance-none cursor-pointer hover:bg-slate-100 transition-colors outline-none w-full"
-                        >
-                            <option value="all">Tous les Plans</option>
-                            <option value="starter">Starter</option>
-                            <option value="pro">Pro</option>
-                            <option value="enterprise">Enterprise</option>
-                        </select>
-                    </div>
-                </div>
+                ))}
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-0 lg:gap-8 items-start">
-                {/* LIST SECTION */}
-                <div className="lg:col-span-2 space-y-4">
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-h-[300px]">
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-50/50 border-b border-slate-100">
-                                <tr>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Organisation & Nom</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Plan</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Statut</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Reçu le</th>
-                                    <th className="px-6 py-4"></th>
+            {/* MAIN CONTENT AREA */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                {/* LEFT SIDE: LIST & FILTERS */}
+                <div className="lg:col-span-2 space-y-6">
+
+                    {/* FILTERS COMPACT */}
+                    <div className="bg-slate-900 p-4 rounded-3xl shadow-lg flex flex-col md:flex-row gap-4">
+                        <div className="relative flex-grow">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                            <input
+                                type="text"
+                                placeholder="Recherche par organisation ou contact..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full h-12 pl-11 pr-4 rounded-2xl bg-white/5 border-none text-white text-sm focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-slate-600"
+                            />
+                        </div>
+                        <div className="flex gap-2">
+                            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-12 bg-white/5 border-none rounded-2xl text-white text-xs font-bold px-4 focus:ring-2 focus:ring-primary/50 outline-none cursor-pointer">
+                                <option className="text-slate-900" value="all">Filtre Statut</option>
+                                <option className="text-slate-900" value="new">Nouveaux</option>
+                                <option className="text-slate-900" value="contacted">En attente</option>
+                                <option className="text-slate-900" value="deployed">Déployés</option>
+                            </select>
+                            <select value={planFilter} onChange={(e) => setPlanFilter(e.target.value)} className="h-12 bg-white/5 border-none rounded-2xl text-white text-xs font-bold px-4 focus:ring-2 focus:ring-primary/50 outline-none cursor-pointer">
+                                <option className="text-slate-900" value="all">Filtre Plan</option>
+                                <option className="text-slate-900" value="starter">Starter</option>
+                                <option className="text-slate-900" value="pro">Pro</option>
+                                <option className="text-slate-900" value="enterprise">Enterprise</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* TABLE */}
+                    <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
+                        <table className="w-full border-collapse">
+                            <thead>
+                                <tr className="border-b border-slate-50 bg-slate-50/30">
+                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left">Organisation / Contact</th>
+                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Forfait</th>
+                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left">Statut</th>
+                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-50">
+                            <tbody>
                                 {filteredRequests.map((req) => {
                                     const PlanIcon = TIER_ICONS[req.selected_plan] || Shield;
-                                    const tierColor = TIER_COLORS[req.selected_plan] || TIER_COLORS.starter;
+                                    const tierStyle = TIER_COLORS[req.selected_plan] || TIER_COLORS.starter;
                                     const isSelected = selectedRequest?.id === req.id;
 
                                     return (
-                                        <tr
-                                            key={req.id}
-                                            className={`hover:bg-slate-50/50 cursor-pointer group transition-all duration-200 ${isSelected ? 'bg-primary/5' : ''}`}
-                                            onClick={() => setSelectedRequest(req)}
-                                        >
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-8 h-8 rounded-lg ${tierColor.bg} ${tierColor.text} flex items-center justify-center shrink-0`}>
-                                                        <PlanIcon className="w-4 h-4" />
+                                        <tr key={req.id} onClick={() => setSelectedRequest(req)} className={`group hover:bg-slate-50 transition-all cursor-pointer border-b border-slate-50 last:border-none ${isSelected ? 'bg-primary/5' : ''}`}>
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`w-12 h-12 rounded-2xl ${tierStyle.bg} flex items-center justify-center border ${tierStyle.border} shrink-0 group-hover:scale-110 transition-transform shadow-sm`}>
+                                                        <PlanIcon className={`w-6 h-6 ${tierStyle.text}`} />
                                                     </div>
                                                     <div>
-                                                        <div className={`font-bold text-sm transition-colors ${isSelected ? 'text-primary' : 'text-slate-900 group-hover:text-primary'}`}>{req.organization_name}</div>
-                                                        <div className="text-[11px] text-slate-500 font-medium">{req.contact_name}</div>
+                                                        <div className={`font-black tracking-tight leading-none text-[15px] ${isSelected ? 'text-primary' : 'text-slate-900'}`}>{req.organization_name}</div>
+                                                        <div className="text-slate-400 text-xs font-bold mt-1.5 flex items-center gap-2 uppercase tracking-tighter">
+                                                            {req.contact_name} • {formatDate(req.created_at)}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-center">
-                                                <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-tighter ${tierColor.bg} ${tierColor.text} border ${tierColor.border}`}>
+                                                <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${tierStyle.border} ${tierStyle.bg} ${tierStyle.text}`}>
                                                     {req.selected_plan}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex shrink-0">{getStatusBadge(req.status)}</div>
-                                            </td>
-                                            <td className="px-6 py-4 text-[11px] text-slate-400 font-bold whitespace-nowrap uppercase tracking-tighter">
-                                                {formatDate(req.created_at)}
-                                            </td>
+                                            <td className="px-6 py-4">{getStatusBadge(req.status)}</td>
                                             <td className="px-6 py-4 text-right">
-                                                <div className={`p-1.5 rounded-lg transition-all ${isSelected ? 'bg-primary text-white scale-110' : 'text-slate-300 group-hover:bg-slate-100 group-hover:text-primary'}`}>
-                                                    <ChevronRight className="w-4 h-4" />
+                                                <div className={`w-10 h-10 rounded-xl inline-flex items-center justify-center transition-all ${isSelected ? 'bg-primary text-white shadow-lg shadow-primary/30 rotate-90' : 'bg-slate-50 text-slate-300 group-hover:bg-primary group-hover:text-white group-hover:shadow-md'}`}>
+                                                    <ChevronRight className="w-5 h-5" />
                                                 </div>
                                             </td>
                                         </tr>
@@ -263,160 +233,120 @@ const OnboardingList = () => {
                             </tbody>
                         </table>
                         {filteredRequests.length === 0 && (
-                            <div className="py-20 flex flex-col items-center justify-center text-center px-8">
-                                <div className="p-4 bg-slate-50 rounded-full mb-4">
-                                    <Search className="w-8 h-8 text-slate-300" />
+                            <div className="p-24 flex flex-col items-center justify-center text-center">
+                                <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+                                    <Search className="w-10 h-10 text-slate-200" />
                                 </div>
-                                <h3 className="text-lg font-bold text-slate-900">Aucun prospect trouvé</h3>
-                                <p className="text-slate-400 text-sm max-w-[240px] mt-1">Essayez de modifier vos filtres ou termes de recherche pour trouver ce que vous cherchez.</p>
-                                <button
-                                    onClick={() => { setSearchTerm(""); setStatusFilter("all"); setPlanFilter("all"); }}
-                                    className="mt-6 text-sm font-bold text-primary hover:underline"
-                                >
-                                    Réinitialiser tout
-                                </button>
+                                <h3 className="text-xl font-black text-slate-900">Aucun résultat</h3>
+                                <p className="text-slate-400 font-medium max-w-xs mx-auto mt-2">Ajustez vos filtres ou effectuez une nouvelle recherche pour trouver vos prospects.</p>
                             </div>
                         )}
                     </div>
                 </div>
 
-                {/* DETAIL PANEL SECTION */}
-                <div className="lg:col-span-1 mt-8 lg:mt-0">
+                {/* RIGHT SIDE: DETAIL DRAWER-STYLE PANEL */}
+                <div className="lg:col-span-1">
                     {selectedRequest ? (
-                        <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden sticky top-24 transition-all duration-300 animate-in fade-in slide-in-from-right-4">
-                            {/* Panel Header */}
-                            <div className="p-6 bg-slate-900 text-white relative">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full -translate-y-12 translate-x-12 blur-3xl"></div>
-                                <div className="flex justify-between items-start mb-6 relative">
-                                    <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md border border-white/10 ring-4 ring-white/5">
-                                        <Building2 className="w-6 h-6 text-cbx-amber" />
+                        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-2xl overflow-hidden sticky top-8 animate-in slide-in-from-right-10 duration-500">
+                            {/* Detail Header */}
+                            <div className="p-8 bg-slate-900 text-white relative">
+                                <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-[80px] -translate-y-12 translate-x-12"></div>
+                                <div className="flex justify-between items-start relative mb-8">
+                                    <div className="w-16 h-16 rounded-[1.5rem] bg-white/10 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-2xl ring-4 ring-white/5">
+                                        <Building2 className="w-8 h-8 text-cbx-amber" />
                                     </div>
-                                    <div className="flex gap-1.5 p-1.5 bg-white/5 rounded-2xl backdrop-blur-md border border-white/5">
-                                        <button onClick={() => updateStatus(selectedRequest.id, 'contacted')} title="Marquer comme contacté" className="p-2 hover:bg-white/10 rounded-xl transition-colors"><Clock className="w-4 h-4 text-amber-400" /></button>
-                                        <button onClick={() => updateStatus(selectedRequest.id, 'deployed')} title="Marquer comme déployé" className="p-2 hover:bg-white/10 rounded-xl transition-colors"><CheckCircle2 className="w-4 h-4 text-emerald-400" /></button>
-                                        <button onClick={() => updateStatus(selectedRequest.id, 'archived')} title="Archiver" className="p-2 hover:bg-white/10 rounded-xl transition-colors"><Archive className="w-4 h-4 text-slate-400" /></button>
+                                    <div className="flex gap-2">
+                                        {[
+                                            { action: 'contacted', icon: Clock, color: 'text-amber-400', tip: 'En attente' },
+                                            { action: 'deployed', icon: CheckCircle2, color: 'text-emerald-400', tip: 'Déployer' },
+                                            { action: 'archived', icon: Archive, color: 'text-slate-400', tip: 'Archiver' }
+                                        ].map((btn, bidx) => (
+                                            <button key={bidx} onClick={() => updateStatus(selectedRequest.id, btn.action)} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors border border-white/5 group relative">
+                                                <btn.icon className={`w-4 h-4 ${btn.color}`} />
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
-                                <h2 className="text-2xl font-black tracking-tight leading-tight">{selectedRequest.organization_name}</h2>
-                                <div className="flex items-center gap-2 mt-2 opacity-60">
-                                    <ArrowUpRight className="w-3.5 h-3.5" />
-                                    <p className="text-xs font-bold uppercase tracking-widest">{selectedRequest.academy_name}</p>
+                                <h2 className="text-3xl font-black tracking-tighter leading-none">{selectedRequest.organization_name}</h2>
+                                <div className="flex items-center gap-2 mt-4">
+                                    <div className={`w-2 h-2 rounded-full ${TIER_COLORS[selectedRequest.selected_plan].accent} animate-pulse`}></div>
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">{selectedRequest.academy_name}</span>
                                 </div>
                             </div>
 
-                            {/* Panel Content */}
-                            <div className="p-6 space-y-8 max-h-[calc(100vh-320px)] overflow-y-auto detail-scroll custom-scrollbar">
-                                {/* Contact Card */}
-                                <div className="space-y-4">
-                                    <div className="flex justify-between items-center px-1">
-                                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Prospect</h3>
-                                        {getStatusBadge(selectedRequest.status)}
-                                    </div>
-                                    <div className="bg-slate-50 p-5 rounded-2xl space-y-3 border border-slate-100">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-slate-200">
-                                                <User className="w-4 h-4 text-slate-400" />
-                                            </div>
-                                            <span className="text-sm font-bold text-slate-900">{selectedRequest.contact_name}</span>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-slate-200">
-                                                <Mail className="w-4 h-4 text-slate-400" />
-                                            </div>
-                                            <a href={`mailto:${selectedRequest.email}`} className="text-sm font-bold text-primary hover:underline truncate">{selectedRequest.email}</a>
-                                        </div>
-                                        {selectedRequest.phone && (
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-slate-200">
-                                                    <span className="text-[8px] font-black text-slate-400">TEL</span>
+                            {/* Detail Body */}
+                            <div className="p-8 space-y-8 max-h-[calc(100vh-400px)] overflow-y-auto detail-scroll">
+                                <div>
+                                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Informations Directes</h3>
+                                    <div className="space-y-4">
+                                        {[
+                                            { icon: User, val: selectedRequest.contact_name, label: "Contact Principal" },
+                                            { icon: Mail, val: selectedRequest.email, label: "Email Professionnel", link: `mailto:${selectedRequest.email}` },
+                                            { icon: ExternalLink, val: selectedRequest.custom_domain ? selectedRequest.domain_name : "Sous-domaine par défaut", label: "Infrastructure Web" }
+                                        ].map((info, iidx) => (
+                                            <div key={iidx} className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                                <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm border border-slate-100 shrink-0">
+                                                    <info.icon className="w-4 h-4 text-primary" />
                                                 </div>
-                                                <span className="text-sm font-bold text-slate-900">{selectedRequest.phone}</span>
+                                                <div className="overflow-hidden">
+                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">{info.label}</p>
+                                                    <p className="font-bold text-slate-900 truncate">
+                                                        {info.link ? <a href={info.link} className="hover:text-primary transition-colors">{info.val}</a> : info.val}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        )}
+                                        ))}
                                     </div>
                                 </div>
 
-                                {/* Configuration Grid */}
-                                <div className="space-y-4">
-                                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Infrastructure</h3>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                                            <div className="text-[9px] text-slate-400 uppercase font-black tracking-wider mb-1">Domaine</div>
-                                            <div className="text-xs font-bold text-slate-900 leading-tight">
-                                                {selectedRequest.custom_domain ? (
-                                                    <span className="flex flex-col">
-                                                        <span>Personnalisé</span>
-                                                        <span className="text-[10px] text-primary truncate mt-0.5">{selectedRequest.domain_name}</span>
-                                                    </span>
-                                                ) : 'Par défaut (.learningskills.ca)'}
-                                            </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="bg-slate-900 p-5 rounded-3xl text-white">
+                                        <div className="text-[9px] font-black text-white/40 uppercase tracking-wider mb-2 text-center">Plan Client</div>
+                                        <div className="flex items-center justify-center gap-2">
+                                            <Shield className="w-5 h-5 text-cbx-amber" />
+                                            <span className="text-xl font-black uppercase tracking-tighter">{selectedRequest.selected_plan}</span>
                                         </div>
-                                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                                            <div className="text-[9px] text-slate-400 uppercase font-black tracking-wider mb-1">Certificats</div>
-                                            <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                                                {selectedRequest.wants_certificates ? (
-                                                    <><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Requis</>
-                                                ) : 'Non requis'}
-                                            </div>
+                                    </div>
+                                    <div className="bg-primary p-5 rounded-3xl text-white">
+                                        <div className="text-[9px] font-black text-white/40 uppercase tracking-wider mb-2 text-center">Certificats</div>
+                                        <div className="flex items-center justify-center gap-2">
+                                            {selectedRequest.wants_certificates ? <CheckCircle2 className="w-5 h-5" /> : <X className="w-5 h-5 opacity-50" />}
+                                            <span className="text-xl font-black">{selectedRequest.wants_certificates ? 'OUI' : 'NON'}</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Tags Sections */}
-                                <div className="space-y-5">
-                                    <div>
-                                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 px-1">Objectifs Pédagogiques</h3>
-                                        <div className="flex flex-wrap gap-2">
-                                            {selectedRequest.training_types?.map((t) => (
-                                                <span key={t} className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-xl text-[11px] font-bold border border-blue-100/50">{t}</span>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 px-1">Formats de Contenu</h3>
-                                        <div className="flex flex-wrap gap-2">
-                                            {selectedRequest.content_types?.map((t) => (
-                                                <span key={t} className="px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl text-[11px] font-bold border border-emerald-100/50">{t}</span>
-                                            ))}
-                                        </div>
+                                {/* Tags Section */}
+                                <div>
+                                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Focus Plateforme</h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selectedRequest.training_types?.map(t => <span key={t} className="px-3 py-1.5 bg-slate-50 text-slate-700 rounded-xl text-[10px] font-bold border border-slate-100">{t}</span>)}
+                                        {selectedRequest.content_types?.map(t => <span key={t} className="px-3 py-1.5 bg-primary/5 text-primary rounded-xl text-[10px] font-bold border border-primary/10">{t}</span>)}
                                     </div>
                                 </div>
 
-                                {/* Comments */}
-                                {selectedRequest.comments && (
-                                    <div className="space-y-3">
-                                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Commentaires Client</h3>
-                                        <div className="p-5 bg-cbx-amber/5 rounded-2xl text-xs font-semibold text-slate-700 border border-cbx-amber/10 italic leading-relaxed relative">
-                                            <div className="absolute top-0 right-4 -translate-y-1/2 bg-cbx-amber text-navy px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest">Note</div>
-                                            "{selectedRequest.comments}"
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Footer Action */}
-                                <div className="pt-4 border-t border-slate-100">
+                                {/* Deployment Footer */}
+                                <div className="pt-8 border-t border-slate-100 flex flex-col items-center">
                                     <button
-                                        className="w-full bg-primary text-white h-14 rounded-2xl font-black text-sm flex items-center justify-center gap-3 hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20 group"
-                                        onClick={() => {
-                                            const tierName = selectedRequest.selected_plan.charAt(0).toUpperCase() + selectedRequest.selected_plan.slice(1);
-                                            alert(`Génération automatique de l'académie "${selectedRequest.academy_name}" (Plan ${tierName}) en cours...`);
-                                        }}
+                                        className="w-full h-16 rounded-[1.5rem] bg-slate-900 text-white font-black text-sm relative group overflow-hidden shadow-2xl hover:scale-[1.03] active:scale-[0.98] transition-all"
+                                        onClick={() => alert('Déploiement en cours...')}
                                     >
-                                        <Rocket className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                                        DÉPLOYER L'ACADÉMIE
+                                        <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                                        <span className="relative z-10 flex items-center justify-center gap-3 tracking-widest">
+                                            DÉPLOYER L'ACADÉMIE <Rocket className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                        </span>
                                     </button>
-                                    <p className="text-[10px] text-center mt-3 text-slate-400 font-bold uppercase tracking-wider">Créera l'instance, le tenant et les accès admin.</p>
+                                    <p className="mt-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Générera l'infrastructure & les accès</p>
                                 </div>
                             </div>
                         </div>
                     ) : (
-                        <div className="h-[500px] rounded-[2.5rem] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 p-12 text-center bg-slate-50/50">
-                            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center border border-slate-100 shadow-sm mb-6 animate-pulse">
-                                <TrendingUp className="w-10 h-10 opacity-20" />
+                        <div className="bg-slate-50 h-[600px] rounded-[3rem] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center p-12 text-center opacity-70">
+                            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg border border-slate-100 mb-8 animate-pulse text-slate-200">
+                                <Building2 className="w-10 h-10" />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-900 mb-2">Sélectionnez un Prospect</h3>
-                            <p className="text-sm font-medium leading-relaxed max-w-[240px]">Cliquez sur une demande dans la liste pour voir les détails de configuration et lancer le déploiement.</p>
+                            <h4 className="text-xl font-black text-slate-900">Prospect Non Sélectionné</h4>
+                            <p className="text-sm font-medium text-slate-500 mt-2 leading-relaxed">Cliquez sur une organisation dans la liste pour visualiser la configuration complète et lancer son académie.</p>
                         </div>
                     )}
                 </div>
