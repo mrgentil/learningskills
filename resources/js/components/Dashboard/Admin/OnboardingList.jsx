@@ -5,7 +5,8 @@ import {
     Archive, MoreVertical, Eye, Search,
     Filter, X, Shield, Sparkles, Crown,
     TrendingUp, Users, CreditCard, Rocket,
-    ChevronRight, ArrowUpRight, BarChart3
+    ChevronRight, ArrowUpRight, BarChart3,
+    ArrowLeft, Check
 } from "lucide-react";
 import axios from "axios";
 
@@ -30,19 +31,19 @@ const TIER_ICONS = {
     enterprise: Crown,
 };
 
-const TIER_COLORS = {
-    starter: { text: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100", accent: "bg-emerald-500" },
-    pro: { text: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100", accent: "bg-blue-500" },
-    enterprise: { text: "text-purple-600", bg: "bg-purple-50", border: "border-purple-100", accent: "bg-purple-500" },
+const TIER_THEMES = {
+    starter: "emerald",
+    pro: "blue",
+    enterprise: "purple",
 };
 
 const OnboardingList = () => {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedRequest, setSelectedRequest] = useState(null);
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
-    const [planFilter, setPlanFilter] = useState("all");
 
     useEffect(() => {
         fetchRequests();
@@ -71,282 +72,288 @@ const OnboardingList = () => {
         }
     };
 
-    const stats = useMemo(() => {
-        return {
-            total: requests.length,
-            new: requests.filter(r => r.status === 'new').length,
-            deployed: requests.filter(r => r.status === 'deployed').length,
-            conversion: requests.length > 0 ? Math.round((requests.filter(r => r.status === 'deployed').length / requests.length) * 100) : 0
-        };
-    }, [requests]);
+    const openDetails = (req) => {
+        setSelectedRequest(req);
+        setIsSheetOpen(true);
+    };
+
+    const stats = useMemo(() => ({
+        total: requests.length,
+        new: requests.filter(r => r.status === 'new').length,
+        deployed: requests.filter(r => r.status === 'deployed').length,
+    }), [requests]);
 
     const filteredRequests = useMemo(() => {
         return requests.filter(req => {
             const matchesSearch =
                 req.organization_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                req.contact_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                req.email.toLowerCase().includes(searchTerm.toLowerCase());
+                req.contact_name.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesStatus = statusFilter === "all" || req.status === statusFilter;
-            const matchesPlan = planFilter === "all" || req.selected_plan === planFilter;
-            return matchesSearch && matchesStatus && matchesPlan;
+            return matchesSearch && matchesStatus;
         });
-    }, [requests, searchTerm, statusFilter, planFilter]);
-
-    const getStatusBadge = (status) => {
-        switch (status) {
-            case "new": return <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider border border-blue-100 flex items-center gap-1.5 w-fit"><span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span> Nouveau</span>;
-            case "contacted": return <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-600 text-[10px] font-bold uppercase tracking-wider border border-amber-100 w-fit">En attente</span>;
-            case "deployed": return <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase tracking-wider border border-emerald-100 w-fit">Déployé</span>;
-            case "archived": return <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider border border-slate-200 w-fit">Archivé</span>;
-            default: return null;
-        }
-    };
+    }, [requests, searchTerm, statusFilter]);
 
     if (loading) return (
-        <div className="flex flex-col items-center justify-center min-h-[500px]">
-            <div className="relative">
-                <div className="w-16 h-16 border-4 border-slate-200 border-t-primary rounded-full animate-spin"></div>
-                <Rocket className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-primary" />
-            </div>
-            <p className="mt-6 text-slate-500 font-bold uppercase tracking-[0.2em] text-xs">Initialisation du Pipeline...</p>
+        <div className="flex items-center justify-center min-h-[400px]">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
     );
 
     return (
-        <div className="p-4 md:p-8 space-y-8 animate-in fade-in duration-700">
-            {/* TOP HEADER */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-8">
+        <div className="container mx-auto max-w-7xl space-y-8 animate-in fade-in duration-500 pb-20">
+            {/* Header Area */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">Onboarding <span className="text-primary">&</span> Pipeline</h1>
-                    <p className="text-slate-500 font-medium">Gestion des nouveaux clients et déploiement stratégique.</p>
+                    <h1 className="text-2xl font-black text-slate-900 font-display uppercase tracking-tight">Onboarding <span className="text-cbx-amber">Hub</span></h1>
+                    <p className="text-slate-500 text-sm font-medium">Gérez le déploiement et le suivi des nouvelles académies.</p>
                 </div>
-                <div className="flex items-center gap-2 text-xs font-bold text-slate-400 bg-slate-50 px-4 py-2 rounded-full border border-slate-100">
-                    <Clock className="w-3.5 h-3.5" />
-                    MIS À JOUR IL Y A 1 MIN
+
+                <div className="flex gap-2">
+                    <div className="bg-white border px-4 py-2 rounded-2xl shadow-sm flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                        <span className="text-xs font-bold text-slate-700 uppercase">{stats.new} NOUVEAUX</span>
+                    </div>
+                    <div className="bg-white border px-4 py-2 rounded-2xl shadow-sm flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <span className="text-xs font-bold text-slate-700 uppercase">{stats.deployed} DÉPLOYÉS</span>
+                    </div>
                 </div>
             </div>
 
-            {/* KEY STATS CARDS */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {[
-                    { label: "Total Leads", value: stats.total, icon: Users, color: "blue", trend: "+12%" },
-                    { label: "À Traiter", value: stats.new, icon: Clock, color: "amber", trend: "-2" },
-                    { label: "Déployés", value: stats.deployed, icon: CheckCircle2, color: "emerald", trend: "+5%" },
-                    { label: "Conversion", value: `${stats.conversion}%`, icon: BarChart3, color: "purple", trend: "Stable" },
-                ].map((s, i) => (
-                    <div key={i} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden flex flex-col justify-between group hover:shadow-xl transition-all duration-300">
-                        <div className={`absolute top-0 right-0 w-24 h-24 bg-${s.color}-50 rounded-full translate-x-10 -translate-y-10 group-hover:scale-150 transition-transform duration-500`}></div>
-                        <div className="flex justify-between items-start relative mb-4">
-                            <div className={`p-3 rounded-2xl bg-${s.color}-50 text-${s.color}-600`}>
-                                <s.icon className="w-6 h-6" />
-                            </div>
-                            <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-50 text-slate-400">{s.trend}</span>
-                        </div>
-                        <div className="relative">
-                            <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider">{s.label}</h4>
-                            <div className="text-4xl font-black text-slate-900 mt-1">{s.value}</div>
-                        </div>
+            {/* Global Stats bar - Simple & Clean */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="p-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm flex items-center gap-4 group hover:border-primary/50 transition-colors">
+                    <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                        <Users className="w-6 h-6" />
                     </div>
-                ))}
-            </div>
-
-            {/* MAIN CONTENT AREA */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-                {/* LEFT SIDE: LIST & FILTERS */}
-                <div className="lg:col-span-2 space-y-6">
-
-                    {/* FILTERS COMPACT */}
-                    <div className="bg-slate-900 p-4 rounded-3xl shadow-lg flex flex-col md:flex-row gap-4">
-                        <div className="relative flex-grow">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                            <input
-                                type="text"
-                                placeholder="Recherche par organisation ou contact..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full h-12 pl-11 pr-4 rounded-2xl bg-white/5 border-none text-white text-sm focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-slate-600"
-                            />
-                        </div>
-                        <div className="flex gap-2">
-                            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-12 bg-white/5 border-none rounded-2xl text-white text-xs font-bold px-4 focus:ring-2 focus:ring-primary/50 outline-none cursor-pointer">
-                                <option className="text-slate-900" value="all">Filtre Statut</option>
-                                <option className="text-slate-900" value="new">Nouveaux</option>
-                                <option className="text-slate-900" value="contacted">En attente</option>
-                                <option className="text-slate-900" value="deployed">Déployés</option>
-                            </select>
-                            <select value={planFilter} onChange={(e) => setPlanFilter(e.target.value)} className="h-12 bg-white/5 border-none rounded-2xl text-white text-xs font-bold px-4 focus:ring-2 focus:ring-primary/50 outline-none cursor-pointer">
-                                <option className="text-slate-900" value="all">Filtre Plan</option>
-                                <option className="text-slate-900" value="starter">Starter</option>
-                                <option className="text-slate-900" value="pro">Pro</option>
-                                <option className="text-slate-900" value="enterprise">Enterprise</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    {/* TABLE */}
-                    <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
-                        <table className="w-full border-collapse">
-                            <thead>
-                                <tr className="border-b border-slate-50 bg-slate-50/30">
-                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left">Organisation / Contact</th>
-                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Forfait</th>
-                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left">Statut</th>
-                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredRequests.map((req) => {
-                                    const PlanIcon = TIER_ICONS[req.selected_plan] || Shield;
-                                    const tierStyle = TIER_COLORS[req.selected_plan] || TIER_COLORS.starter;
-                                    const isSelected = selectedRequest?.id === req.id;
-
-                                    return (
-                                        <tr key={req.id} onClick={() => setSelectedRequest(req)} className={`group hover:bg-slate-50 transition-all cursor-pointer border-b border-slate-50 last:border-none ${isSelected ? 'bg-primary/5' : ''}`}>
-                                            <td className="px-8 py-6">
-                                                <div className="flex items-center gap-4">
-                                                    <div className={`w-12 h-12 rounded-2xl ${tierStyle.bg} flex items-center justify-center border ${tierStyle.border} shrink-0 group-hover:scale-110 transition-transform shadow-sm`}>
-                                                        <PlanIcon className={`w-6 h-6 ${tierStyle.text}`} />
-                                                    </div>
-                                                    <div>
-                                                        <div className={`font-black tracking-tight leading-none text-[15px] ${isSelected ? 'text-primary' : 'text-slate-900'}`}>{req.organization_name}</div>
-                                                        <div className="text-slate-400 text-xs font-bold mt-1.5 flex items-center gap-2 uppercase tracking-tighter">
-                                                            {req.contact_name} • {formatDate(req.created_at)}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 text-center">
-                                                <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${tierStyle.border} ${tierStyle.bg} ${tierStyle.text}`}>
-                                                    {req.selected_plan}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4">{getStatusBadge(req.status)}</td>
-                                            <td className="px-6 py-4 text-right">
-                                                <div className={`w-10 h-10 rounded-xl inline-flex items-center justify-center transition-all ${isSelected ? 'bg-primary text-white shadow-lg shadow-primary/30 rotate-90' : 'bg-slate-50 text-slate-300 group-hover:bg-primary group-hover:text-white group-hover:shadow-md'}`}>
-                                                    <ChevronRight className="w-5 h-5" />
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                        {filteredRequests.length === 0 && (
-                            <div className="p-24 flex flex-col items-center justify-center text-center">
-                                <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-                                    <Search className="w-10 h-10 text-slate-200" />
-                                </div>
-                                <h3 className="text-xl font-black text-slate-900">Aucun résultat</h3>
-                                <p className="text-slate-400 font-medium max-w-xs mx-auto mt-2">Ajustez vos filtres ou effectuez une nouvelle recherche pour trouver vos prospects.</p>
-                            </div>
-                        )}
+                    <div>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Leads</span>
+                        <h4 className="text-2xl font-black text-slate-900 leading-tight">{stats.total}</h4>
                     </div>
                 </div>
+                <div className="p-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm flex items-center gap-4 group hover:border-cbx-amber/50 transition-colors">
+                    <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-cbx-amber/10 group-hover:text-cbx-amber transition-colors">
+                        <Clock className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">À Contacter</span>
+                        <h4 className="text-2xl font-black text-slate-900 leading-tight">{stats.new}</h4>
+                    </div>
+                </div>
+                <div className="p-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm flex items-center gap-4 group hover:border-emerald-500/50 transition-colors">
+                    <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
+                        <Rocket className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Opérationnels</span>
+                        <h4 className="text-2xl font-black text-slate-900 leading-tight">{stats.deployed}</h4>
+                    </div>
+                </div>
+            </div>
 
-                {/* RIGHT SIDE: DETAIL DRAWER-STYLE PANEL */}
-                <div className="lg:col-span-1">
-                    {selectedRequest ? (
-                        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-2xl overflow-hidden sticky top-8 animate-in slide-in-from-right-10 duration-500">
-                            {/* Detail Header */}
-                            <div className="p-8 bg-slate-900 text-white relative">
-                                <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-[80px] -translate-y-12 translate-x-12"></div>
-                                <div className="flex justify-between items-start relative mb-8">
-                                    <div className="w-16 h-16 rounded-[1.5rem] bg-white/10 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-2xl ring-4 ring-white/5">
-                                        <Building2 className="w-8 h-8 text-cbx-amber" />
-                                    </div>
-                                    <div className="flex gap-2">
-                                        {[
-                                            { action: 'contacted', icon: Clock, color: 'text-amber-400', tip: 'En attente' },
-                                            { action: 'deployed', icon: CheckCircle2, color: 'text-emerald-400', tip: 'Déployer' },
-                                            { action: 'archived', icon: Archive, color: 'text-slate-400', tip: 'Archiver' }
-                                        ].map((btn, bidx) => (
-                                            <button key={bidx} onClick={() => updateStatus(selectedRequest.id, btn.action)} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors border border-white/5 group relative">
-                                                <btn.icon className={`w-4 h-4 ${btn.color}`} />
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                                <h2 className="text-3xl font-black tracking-tighter leading-none">{selectedRequest.organization_name}</h2>
-                                <div className="flex items-center gap-2 mt-4">
-                                    <div className={`w-2 h-2 rounded-full ${TIER_COLORS[selectedRequest.selected_plan].accent} animate-pulse`}></div>
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">{selectedRequest.academy_name}</span>
-                                </div>
-                            </div>
+            {/* Filter Hub */}
+            <div className="flex flex-col md:flex-row gap-4">
+                <div className="relative flex-grow">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                        type="text"
+                        placeholder="Rechercher une organisation..."
+                        className="w-full h-14 pl-11 pr-4 rounded-[1.25rem] bg-white border border-slate-200 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm outline-none shadow-sm"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <div className="flex gap-2">
+                    <select
+                        className="h-14 px-5 rounded-[1.25rem] bg-white border border-slate-200 text-xs font-black uppercase tracking-widest outline-none focus:ring-4 focus:ring-primary/10 transition-all cursor-pointer shadow-sm"
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                    >
+                        <option value="all">TOUS STATUTS</option>
+                        <option value="new">NOUVEAUX</option>
+                        <option value="deployed">DÉPLOYÉS</option>
+                        <option value="archived">ARCHIVÉS</option>
+                    </select>
+                </div>
+            </div>
 
-                            {/* Detail Body */}
-                            <div className="p-8 space-y-8 max-h-[calc(100vh-400px)] overflow-y-auto detail-scroll">
-                                <div>
-                                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Informations Directes</h3>
-                                    <div className="space-y-4">
-                                        {[
-                                            { icon: User, val: selectedRequest.contact_name, label: "Contact Principal" },
-                                            { icon: Mail, val: selectedRequest.email, label: "Email Professionnel", link: `mailto:${selectedRequest.email}` },
-                                            { icon: ExternalLink, val: selectedRequest.custom_domain ? selectedRequest.domain_name : "Sous-domaine par défaut", label: "Infrastructure Web" }
-                                        ].map((info, iidx) => (
-                                            <div key={iidx} className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                                                <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm border border-slate-100 shrink-0">
-                                                    <info.icon className="w-4 h-4 text-primary" />
-                                                </div>
-                                                <div className="overflow-hidden">
-                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">{info.label}</p>
-                                                    <p className="font-bold text-slate-900 truncate">
-                                                        {info.link ? <a href={info.link} className="hover:text-primary transition-colors">{info.val}</a> : info.val}
-                                                    </p>
-                                                </div>
+            {/* Main Table - Robust & Clean */}
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
+                <table className="w-full">
+                    <thead>
+                        <tr className="bg-slate-50/50 border-b border-slate-100">
+                            <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-left">Organisation / Projet</th>
+                            <th className="px-6 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Licence</th>
+                            <th className="px-6 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-left">Statut</th>
+                            <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                        {filteredRequests.map((req) => {
+                            const Icon = TIER_ICONS[req.selected_plan] || Shield;
+                            const theme = TIER_THEMES[req.selected_plan] || "emerald";
+
+                            return (
+                                <tr key={req.id} className="group hover:bg-slate-50/80 transition-all cursor-pointer" onClick={() => openDetails(req)}>
+                                    <td className="px-10 py-8">
+                                        <div className="flex items-center gap-5">
+                                            <div className={`w-14 h-14 rounded-2xl bg-${theme}-50 border border-${theme}-100 flex items-center justify-center text-${theme}-600 shrink-0 group-hover:scale-105 transition-transform`}>
+                                                <Icon className="w-7 h-7" />
                                             </div>
+                                            <div>
+                                                <h3 className="text-lg font-black text-slate-900 tracking-tight leading-none group-hover:text-primary transition-colors">{req.organization_name}</h3>
+                                                <p className="text-xs text-slate-500 font-bold uppercase mt-2 opacity-60 flex items-center gap-2">
+                                                    <User className="w-3 h-3" /> {req.contact_name} • {formatDate(req.created_at)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-center">
+                                        <span className={`px-3 py-1.5 rounded-xl bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest`}>
+                                            {req.selected_plan}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        {req.status === 'new' ? (
+                                            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-black border border-blue-200">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></div> NOUVEAU
+                                            </span>
+                                        ) : req.status === 'deployed' ? (
+                                            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black border border-emerald-200">
+                                                <Check className="w-3 h-3" /> DÉPLOYÉ
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-[10px] font-black border border-slate-200 uppercase">
+                                                {req.status}
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td className="px-10 py-4 text-right">
+                                        <button className="w-11 h-11 rounded-full bg-slate-100 text-slate-400 group-hover:bg-primary group-hover:text-white flex items-center justify-center transition-all shadow-sm group-hover:shadow-lg group-hover:shadow-primary/30">
+                                            <ChevronRight className="w-5 h-5" />
+                                        </button>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+                {filteredRequests.length === 0 && (
+                    <div className="p-20 text-center flex flex-col items-center">
+                        <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+                            <Search className="w-8 h-8 text-slate-200" />
+                        </div>
+                        <h4 className="text-xl font-black text-slate-900">Aucun projet trouvé</h4>
+                        <p className="text-slate-400 font-medium max-w-xs mt-2">Essayez d'ajuster vos critères de recherche ou vos filtres.</p>
+                    </div>
+                )}
+            </div>
+
+            {/* SLIDE OVER SHEET - Premium Interaction Pattern */}
+            <div className={`fixed inset-0 z-50 transition-all duration-500 ${isSheetOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}>
+                {/* Backdrop */}
+                <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsSheetOpen(false)}></div>
+
+                {/* Panel */}
+                <div className={`absolute top-0 right-0 h-full w-full max-w-xl bg-white shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${isSheetOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+                    {selectedRequest && (
+                        <div className="flex flex-col h-full bg-[#fcfdfe]">
+                            {/* Sheet Header */}
+                            <div className="p-8 bg-slate-900 text-white relative flex justify-between items-center">
+                                <div className="absolute bottom-0 right-0 w-40 h-40 bg-cbx-amber/10 rounded-full blur-[60px] translate-x-10 translate-y-10"></div>
+                                <div>
+                                    <h2 className="text-3xl font-black tracking-tighter uppercase">{selectedRequest.organization_name}</h2>
+                                    <p className="text-cbx-amber text-xs font-black uppercase tracking-[0.3em] mt-1">{selectedRequest.academy_name}</p>
+                                </div>
+                                <button onClick={() => setIsSheetOpen(false)} className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">
+                                    <X className="w-6 h-6" />
+                                </button>
+                            </div>
+
+                            {/* Sheet Content */}
+                            <div className="flex-grow overflow-y-auto p-10 space-y-10 custom-scrollbar">
+                                {/* Configuration Cards */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="p-5 bg-white border border-slate-100 rounded-3xl shadow-sm">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Plan Choisi</span>
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                                                {TIER_ICONS[selectedRequest.selected_plan] && React.createElement(TIER_ICONS[selectedRequest.selected_plan], { className: "w-4 h-4" })}
+                                            </div>
+                                            <span className="text-lg font-black uppercase leading-none">{selectedRequest.selected_plan}</span>
+                                        </div>
+                                    </div>
+                                    <div className="p-5 bg-white border border-slate-100 rounded-3xl shadow-sm">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Infrastructure</span>
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center">
+                                                <ExternalLink className="w-4 h-4" />
+                                            </div>
+                                            <span className="text-xs font-bold uppercase truncate">{selectedRequest.custom_domain ? 'Custom Domain' : 'On-Premise'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Main Contact Group */}
+                                <div className="space-y-4">
+                                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Responsable & Contact</h4>
+                                    <div className="bg-white rounded-3xl border border-slate-100 shadow-sm divide-y divide-slate-50">
+                                        <div className="p-6 flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center shrink-0">
+                                                <User className="w-5 h-5 text-slate-400" />
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">Nom Complet</p>
+                                                <p className="font-bold text-slate-900">{selectedRequest.contact_name}</p>
+                                            </div>
+                                        </div>
+                                        <div className="p-6 flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center shrink-0">
+                                                <Mail className="w-5 h-5 text-slate-400" />
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">Email</p>
+                                                <a href={`mailto:${selectedRequest.email}`} className="font-bold text-primary hover:underline">{selectedRequest.email}</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Preferences & Tags */}
+                                <div className="space-y-4">
+                                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Configuration Plateforme</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selectedRequest.training_types?.map(t => (
+                                            <span key={t} className="px-4 py-2 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest">{t}</span>
+                                        ))}
+                                        {selectedRequest.content_types?.map(t => (
+                                            <span key={t} className="px-4 py-2 bg-cbd-amber/10 border border-cbx-amber/20 text-cbx-amber rounded-2xl text-[10px] font-black uppercase tracking-widest">{t}</span>
                                         ))}
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-slate-900 p-5 rounded-3xl text-white">
-                                        <div className="text-[9px] font-black text-white/40 uppercase tracking-wider mb-2 text-center">Plan Client</div>
-                                        <div className="flex items-center justify-center gap-2">
-                                            <Shield className="w-5 h-5 text-cbx-amber" />
-                                            <span className="text-xl font-black uppercase tracking-tighter">{selectedRequest.selected_plan}</span>
+                                {selectedRequest.comments && (
+                                    <div className="space-y-4">
+                                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Commentaires Client</h4>
+                                        <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100 italic text-sm text-slate-700 leading-relaxed font-medium">
+                                            "{selectedRequest.comments}"
                                         </div>
                                     </div>
-                                    <div className="bg-primary p-5 rounded-3xl text-white">
-                                        <div className="text-[9px] font-black text-white/40 uppercase tracking-wider mb-2 text-center">Certificats</div>
-                                        <div className="flex items-center justify-center gap-2">
-                                            {selectedRequest.wants_certificates ? <CheckCircle2 className="w-5 h-5" /> : <X className="w-5 h-5 opacity-50" />}
-                                            <span className="text-xl font-black">{selectedRequest.wants_certificates ? 'OUI' : 'NON'}</span>
-                                        </div>
-                                    </div>
-                                </div>
+                                )}
+                            </div>
 
-                                {/* Tags Section */}
-                                <div>
-                                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Focus Plateforme</h3>
-                                    <div className="flex flex-wrap gap-2">
-                                        {selectedRequest.training_types?.map(t => <span key={t} className="px-3 py-1.5 bg-slate-50 text-slate-700 rounded-xl text-[10px] font-bold border border-slate-100">{t}</span>)}
-                                        {selectedRequest.content_types?.map(t => <span key={t} className="px-3 py-1.5 bg-primary/5 text-primary rounded-xl text-[10px] font-bold border border-primary/10">{t}</span>)}
-                                    </div>
-                                </div>
-
-                                {/* Deployment Footer */}
-                                <div className="pt-8 border-t border-slate-100 flex flex-col items-center">
-                                    <button
-                                        className="w-full h-16 rounded-[1.5rem] bg-slate-900 text-white font-black text-sm relative group overflow-hidden shadow-2xl hover:scale-[1.03] active:scale-[0.98] transition-all"
-                                        onClick={() => alert('Déploiement en cours...')}
-                                    >
-                                        <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                                        <span className="relative z-10 flex items-center justify-center gap-3 tracking-widest">
-                                            DÉPLOYER L'ACADÉMIE <Rocket className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                                        </span>
+                            {/* Sheet Footer Action Area */}
+                            <div className="p-8 bg-white border-t border-slate-100 space-y-4">
+                                <div className="flex gap-2">
+                                    <button onClick={() => updateStatus(selectedRequest.id, 'deployed')} className="flex-grow h-16 rounded-[1.25rem] bg-slate-900 text-white font-black text-sm tracking-widest uppercase flex items-center justify-center gap-3 hover:bg-emerald-600 transition-colors shadow-xl shadow-slate-900/20 active:scale-95">
+                                        <Rocket className="w-5 h-5" /> DÉPLOYER MAINTENANT
                                     </button>
-                                    <p className="mt-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Générera l'infrastructure & les accès</p>
+                                    <button onClick={() => updateStatus(selectedRequest.id, 'archived')} className="w-16 h-16 rounded-[1.25rem] bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors">
+                                        <Archive className="w-6 h-6" />
+                                    </button>
                                 </div>
+                                <p className="text-[9px] text-center font-black text-slate-400 uppercase tracking-widest">Marquer comme opérationnel générera l'accès au tenant.</p>
                             </div>
-                        </div>
-                    ) : (
-                        <div className="bg-slate-50 h-[600px] rounded-[3rem] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center p-12 text-center opacity-70">
-                            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg border border-slate-100 mb-8 animate-pulse text-slate-200">
-                                <Building2 className="w-10 h-10" />
-                            </div>
-                            <h4 className="text-xl font-black text-slate-900">Prospect Non Sélectionné</h4>
-                            <p className="text-sm font-medium text-slate-500 mt-2 leading-relaxed">Cliquez sur une organisation dans la liste pour visualiser la configuration complète et lancer son académie.</p>
                         </div>
                     )}
                 </div>
