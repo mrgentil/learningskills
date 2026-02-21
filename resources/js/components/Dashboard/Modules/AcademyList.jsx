@@ -190,12 +190,14 @@ const AcademyList = () => {
     const [tenants, setTenants] = useState([]);
     const [pagination, setPagination] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(page);
     const [showModal, setShowModal] = useState(false);
+    const [selectedAcademy, setSelectedAcademy] = useState(null);
+    const [actualPage, setActualPage] = useState(1);
 
     useEffect(() => {
-        fetchTenants(page);
-    }, [page]);
+        fetchTenants(actualPage);
+    }, [actualPage]);
 
     const fetchTenants = async (pageNumber) => {
         setLoading(true);
@@ -221,122 +223,188 @@ const AcademyList = () => {
 
     if (loading && tenants.length === 0) {
         return (
-            <div className="text-center p-5">
-                <i className="fa fa-spin fa-spinner fa-3x" style={{ color: 'var(--cbx-navy)' }}></i>
-                <p className="mt-3">Chargement des académies...</p>
+            <div style={{ display: 'flex', height: '400px', alignItems: 'center', justifyContent: 'center' }}>
+                <p style={{ fontWeight: 800, color: '#94a3b8' }}>CHARGEMENT DES ACADÉMIES...</p>
             </div>
         );
     }
 
     return (
-        <div className="fade-in">
-            <div className="d-flex justify-content-between align-items-center mb-5">
+        <div style={{ padding: '0 10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
                 <div>
-                    <h2 className="page-title">Gestion des Académies 🛡️</h2>
-                    <p className="page-subtitle">Déployez et gérez les instances de votre plateforme.</p>
+                    <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#0f172a', margin: 0, letterSpacing: '-1px' }}>
+                        Gestion des <span style={{ color: '#f59e0b' }}>Académies</span> 🛡️
+                    </h1>
+                    <p style={{ color: '#64748b', fontSize: '15px', marginTop: '5px', fontWeight: 500 }}>
+                        Supervisez les instances actives et gérez leurs ressources.
+                    </p>
                 </div>
-                <button className="btn-modern btn-primary-modern" onClick={() => setShowModal(true)}>
-                    <i className="fa fa-plus"></i> Nouvelle Académie
+                <button
+                    className="btn-modern btn-primary-modern"
+                    onClick={() => setShowModal(true)}
+                    style={{ height: '50px', padding: '0 30px', borderRadius: '15px' }}
+                >
+                    <i className="fa fa-plus mr-2"></i> Nouvelle Académie
                 </button>
             </div>
 
-            <div className="stat-card p-0" style={{ overflow: 'hidden' }}>
-                <div className="table-responsive">
-                    <table className="table mb-0" style={{ verticalAlign: 'middle' }}>
-                        <thead style={{ background: '#f8fafc' }}>
-                            <tr>
-                                <th style={{ padding: '20px', borderTop: 'none' }}>Académie</th>
-                                <th style={{ borderTop: 'none' }}>Propriétaire</th>
-                                <th style={{ borderTop: 'none' }}>Forfait</th>
-                                <th style={{ borderTop: 'none' }}>Licence</th>
-                                <th style={{ borderTop: 'none', textAlign: 'center' }}>Cours / Étudiants</th>
-                                <th style={{ borderTop: 'none' }}>Statut</th>
-                                <th style={{ borderTop: 'none', textAlign: 'right', paddingRight: '20px' }}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody style={{ opacity: loading ? 0.6 : 1, transition: 'opacity 0.2s' }}>
-                            {tenants.length === 0 && !loading && (
-                                <tr>
-                                    <td colSpan={7} className="text-center py-5 text-muted">Aucune académie trouvée.</td>
-                                </tr>
-                            )}
-                            {tenants.map((t) => {
-                                const tierInfo = TIER_BADGES[t.plan_tier] || null;
-                                const licenseInfo = LICENSE_BADGES[t.license_status] || LICENSE_BADGES.none;
-
-                                return (
-                                    <tr key={t.id}>
-                                        <td style={{ padding: '20px' }}>
-                                            <div style={{ fontWeight: 700 }}>{t.name}</div>
-                                            <small className="text-muted">/{t.slug}</small>
-                                        </td>
-                                        <td>
-                                            <div style={{ fontSize: '14px', fontWeight: 600 }}>{t.owner_name}</div>
-                                            <div style={{ fontSize: '12px', color: '#a0aec0' }}>{t.owner_email}</div>
-                                        </td>
-                                        <td>
-                                            {tierInfo ? (
-                                                <span className="badge-role" style={{ background: tierInfo.bg, color: tierInfo.color, fontWeight: 700, fontSize: '12px' }}>
-                                                    {tierInfo.label}
-                                                </span>
-                                            ) : (
-                                                <span className="badge-role" style={{ background: '#e2e8f0', color: '#475569' }}>{t.plan_name}</span>
-                                            )}
-                                        </td>
-                                        <td>
-                                            <span className="badge-role" style={{ background: licenseInfo.bg, color: licenseInfo.color, fontWeight: 600, fontSize: '12px' }}>
-                                                {licenseInfo.label}
-                                            </span>
-                                            {t.license_expires && (
-                                                <div style={{ fontSize: '11px', color: '#718096', marginTop: '2px' }}>
-                                                    exp. {t.license_expires}
-                                                </div>
-                                            )}
-                                        </td>
-                                        <td className="text-center">
-                                            <div style={{ fontSize: '13px' }}>
-                                                <span className="mr-2"><i className="fa fa-book mr-1" style={{ color: 'var(--cbx-navy-light)' }}></i>{t.courses_count}</span>
-                                                <span><i className="fa fa-graduation-cap mr-1" style={{ color: 'var(--cbx-amber)' }}></i>{t.students_count}</span>
+            <div style={{ background: 'white', borderRadius: '35px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                        <tr>
+                            <th style={{ padding: '25px 30px', textAlign: 'left', fontSize: '10px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '2px' }}>Académie</th>
+                            <th style={{ padding: '25px', textAlign: 'left', fontSize: '10px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '2px' }}>Propriétaire</th>
+                            <th style={{ padding: '25px', textAlign: 'center', fontSize: '10px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '2px' }}>Forfait</th>
+                            <th style={{ padding: '25px', textAlign: 'center', fontSize: '10px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '2px' }}>Status</th>
+                            <th style={{ padding: '25px 30px', textAlign: 'right' }}></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {tenants.map((t) => {
+                            const tierInfo = TIER_BADGES[t.plan_tier] || { label: t.plan_name, bg: '#f1f5f9', color: '#475569' };
+                            return (
+                                <tr key={t.id} style={{ borderBottom: '1px solid #f1f5f9', cursor: 'pointer', transition: 'background 0.2s' }} onClick={() => setSelectedAcademy(t)}>
+                                    <td style={{ padding: '25px 30px' }}>
+                                        <div style={{ fontWeight: 800, fontSize: '16px', color: '#0f172a' }}>{t.name}</div>
+                                        <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 600 }}>/{t.slug}</div>
+                                    </td>
+                                    <td style={{ padding: '25px' }}>
+                                        <div style={{ fontWeight: 700, fontSize: '14px', color: '#334155' }}>{t.owner_name}</div>
+                                        <div style={{ fontSize: '12px', color: '#94a3b8' }}>{t.owner_email}</div>
+                                    </td>
+                                    <td style={{ padding: '25px', textAlign: 'center' }}>
+                                        <span style={{ padding: '6px 12px', borderRadius: '10px', background: tierInfo.bg, color: tierInfo.color, fontSize: '10px', fontWeight: 900, textTransform: 'uppercase' }}>
+                                            {tierInfo.label}
+                                        </span>
+                                    </td>
+                                    <td style={{ padding: '25px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: t.is_active ? '#f0fdf4' : '#f8fafc', color: t.is_active ? '#16a34a' : '#94a3b8', borderRadius: '10px', fontSize: '10px', fontWeight: 900, border: `1px solid ${t.is_active ? '#dcfce7' : '#e2e8f0'}` }}>
+                                                <div style={{ width: '6px', height: '6px', background: t.is_active ? '#16a34a' : '#94a3b8', borderRadius: '50%' }}></div>
+                                                {t.is_active ? 'ACTIF' : 'INACTIF'}
                                             </div>
-                                        </td>
-                                        <td>
-                                            <span style={{ color: t.is_active ? '#48bb78' : '#a0aec0', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}>
-                                                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: t.is_active ? '#48bb78' : '#a0aec0' }}></span>
-                                                {t.is_active ? 'Actif' : 'Inactif'}
-                                            </span>
-                                        </td>
-                                        <td style={{ textAlign: 'right', paddingRight: '20px' }}>
-                                            <button className="btn btn-sm btn-light mr-2" style={{ borderRadius: '8px' }}><i className="fa fa-pencil"></i></button>
-                                            <button className="btn btn-sm btn-light text-danger" style={{ borderRadius: '8px' }}><i className="fa fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
+                                        </div>
+                                    </td>
+                                    <td style={{ padding: '25px 30px', textAlign: 'right' }}>
+                                        <button style={{ width: '40px', height: '40px', borderRadius: '12px', border: 'none', background: '#f8fafc', color: '#94a3b8', cursor: 'pointer' }}>
+                                            <i className="fa fa-chevron-right"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
 
                 {pagination && pagination.last_page > 1 && (
-                    <div className="d-flex justify-content-between align-items-center p-4" style={{ background: '#f8fafc', borderTop: '1px solid #edf2f7' }}>
-                        <div className="text-muted small">
-                            Affichage de {pagination.from} à {pagination.to} sur {pagination.total} académies
-                        </div>
-                        <div className="d-flex gap-2">
-                            <button className="btn btn-sm btn-light" disabled={page === 1 || loading} onClick={() => setPage(page - 1)} style={{ borderRadius: '8px', fontWeight: 600 }}>
-                                <i className="fa fa-chevron-left mr-1"></i> Précédent
+                    <div style={{ padding: '20px 30px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748b' }}>
+                            Affichage de {pagination.from} à {pagination.to} sur {pagination.total}
+                        </span>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <button
+                                onClick={() => setActualPage(actualPage - 1)}
+                                disabled={actualPage === 1}
+                                style={{ padding: '8px 15px', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', fontWeight: 700, fontSize: '12px', cursor: actualPage === 1 ? 'not-allowed' : 'pointer', opacity: actualPage === 1 ? 0.5 : 1 }}
+                            >
+                                Précédent
                             </button>
-                            <button className="btn btn-sm btn-light" disabled={page === pagination.last_page || loading} onClick={() => setPage(page + 1)} style={{ borderRadius: '8px', fontWeight: 600 }}>
-                                Suivant <i className="fa fa-chevron-right ml-1"></i>
+                            <button
+                                onClick={() => setActualPage(actualPage + 1)}
+                                disabled={actualPage === pagination.last_page}
+                                style={{ padding: '8px 15px', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', fontWeight: 700, fontSize: '12px', cursor: actualPage === pagination.last_page ? 'not-allowed' : 'pointer', opacity: actualPage === pagination.last_page ? 0.5 : 1 }}
+                            >
+                                Suivant
                             </button>
                         </div>
                     </div>
                 )}
             </div>
 
+            {/* Slide-over Detail */}
+            {selectedAcademy && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex' }}>
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)' }} onClick={() => setSelectedAcademy(null)}></div>
+                    <div style={{ position: 'absolute', top: 0, right: 0, height: '100%', width: '100%', maxWidth: '500px', background: 'white', boxShadow: '-10px 0 30px rgba(0,0,0,0.1)', padding: '50px', overflowY: 'auto' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+                            <div style={{ background: '#0f172a', padding: '8px 15px', borderRadius: '12px', color: 'white', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase' }}>Détails Académie</div>
+                            <button onClick={() => setSelectedAcademy(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}><i className="fa fa-times fa-lg"></i></button>
+                        </div>
+
+                        <h2 style={{ fontSize: '32px', fontWeight: 950, color: '#0f172a', margin: 0, letterSpacing: '-1.5px' }}>{selectedAcademy.name}</h2>
+                        <p style={{ color: '#f59e0b', fontWeight: 800, fontSize: '13px', marginTop: '5px' }}>ID: #{selectedAcademy.id} • Create le {new Date(selectedAcademy.created_at).toLocaleDateString()}</p>
+
+                        <div style={{ marginTop: '40px', display: 'flex', flexDirection: 'column', gap: '25px' }}>
+                            <div style={{ background: '#f8fafc', padding: '25px', borderRadius: '25px', border: '1px solid #e2e8f0' }}>
+                                <p style={{ margin: '0 0 15px', fontSize: '10px', color: '#94a3b8', fontWeight: 900, textTransform: 'uppercase' }}>Propriétaire</p>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    <div style={{ fontWeight: 800, fontSize: '16px' }}><i className="fa fa-user mr-2 text-primary"></i> {selectedAcademy.owner_name}</div>
+                                    <div style={{ fontWeight: 700, fontSize: '14px', color: '#3b82f6' }}><i className="fa fa-envelope mr-2"></i> {selectedAcademy.owner_email}</div>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                <div style={{ background: 'white', padding: '25px', borderRadius: '25px', border: '1px solid #e2e8f0' }}>
+                                    <p style={{ margin: '0 0 10px', fontSize: '10px', color: '#94a3b8', fontWeight: 900, textTransform: 'uppercase' }}>Forfait</p>
+                                    <span style={{ fontWeight: 900, fontSize: '18px', color: '#0f172a' }}>{selectedAcademy.plan_name}</span>
+                                </div>
+                                <div style={{ background: 'white', padding: '25px', borderRadius: '25px', border: '1px solid #e2e8f0' }}>
+                                    <p style={{ margin: '0 0 10px', fontSize: '10px', color: '#94a3b8', fontWeight: 900, textTransform: 'uppercase' }}>Licence</p>
+                                    <span style={{ fontWeight: 900, fontSize: '18px', color: selectedAcademy.license_status === 'active' ? '#16a34a' : '#f59e0b' }}>
+                                        {selectedAcademy.license_status.toUpperCase()}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div style={{ background: 'white', padding: '25px', borderRadius: '25px', border: '1px solid #e2e8f0' }}>
+                                <p style={{ margin: '0 0 15px', fontSize: '10px', color: '#94a3b8', fontWeight: 900, textTransform: 'uppercase' }}>Usage Actuel</p>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <div style={{ textAlign: 'center', flex: 1 }}>
+                                        <h4 style={{ margin: 0, fontSize: '24px', fontWeight: 900 }}>{selectedAcademy.courses_count}</h4>
+                                        <small style={{ color: '#64748b', fontWeight: 700 }}>COURS</small>
+                                    </div>
+                                    <div style={{ width: '1px', background: '#e2e8f0' }}></div>
+                                    <div style={{ textAlign: 'center', flex: 1 }}>
+                                        <h4 style={{ margin: 0, fontSize: '24px', fontWeight: 900 }}>{selectedAcademy.students_count}</h4>
+                                        <small style={{ color: '#64748b', fontWeight: 700 }}>ÉTUDIANTS</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style={{ marginTop: '20px' }}>
+                                <a
+                                    href={`/academy/${selectedAcademy.slug}`}
+                                    target="_blank"
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '10px',
+                                        width: '100%',
+                                        height: '60px',
+                                        borderRadius: '20px',
+                                        background: '#0f172a',
+                                        color: 'white',
+                                        textDecoration: 'none',
+                                        fontWeight: 900,
+                                        fontSize: '14px',
+                                        boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
+                                    }}
+                                >
+                                    VISITER L'ACADÉMIE <i className="fa fa-external-link"></i>
+                                </a>
+                                <p style={{ textAlign: 'center', marginTop: '15px', fontSize: '11px', fontWeight: 700, color: '#94a3b8' }}>Dernière transaction: {selectedAcademy.total_revenue}$ générés</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {showModal && (
                 <AcademyModal
                     onClose={() => setShowModal(false)}
-                    onSuccess={() => fetchTenants(page)}
+                    onSuccess={() => fetchTenants(actualPage)}
                 />
             )}
         </div>

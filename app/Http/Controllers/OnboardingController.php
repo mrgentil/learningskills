@@ -93,7 +93,45 @@ class OnboardingController extends Controller
     }
 
     /**
-     * Admin: Update request status.
+     * Admin: Update onboarding request fields.
+     */
+    public function update(Request $request, $id)
+    {
+        $this->authorizeAdmin();
+
+        $onboardingRequest = OnboardingRequest::findOrFail($id);
+
+        $validated = $request->validate([
+            'organization_name' => 'sometimes|string|max:255',
+            'contact_name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|max:255',
+            'phone' => 'sometimes|string|max:255',
+            'timezone' => 'sometimes|string|max:255',
+            'academy_name' => 'sometimes|string|max:255',
+            'custom_domain' => 'sometimes|boolean',
+            'domain_name' => 'sometimes|nullable|string|max:255',
+            'training_types' => 'sometimes|nullable|array',
+            'content_types' => 'sometimes|nullable|array',
+            'wants_certificates' => 'sometimes|boolean',
+            'estimated_learners' => 'sometimes|nullable|string|max:255',
+            'registration_mode' => 'sometimes|nullable|string|max:255',
+            'will_sell_courses' => 'sometimes|boolean',
+            'has_stripe' => 'sometimes|boolean',
+            'enabled_features' => 'sometimes|nullable|array',
+            'content_readiness' => 'sometimes|nullable|string|max:255',
+            'target_launch_date' => 'sometimes|nullable|date',
+            'comments' => 'sometimes|nullable|string',
+            'selected_plan' => 'sometimes|string|in:starter,pro,enterprise',
+            'status' => 'sometimes|in:new,contacted,scheduled,archived',
+        ]);
+
+        $onboardingRequest->update($validated);
+
+        return response()->json($onboardingRequest);
+    }
+
+    /**
+     * Admin: Update request status (legacy method, kept for compatibility if needed).
      */
     public function updateStatus(Request $request, $id)
     {
