@@ -2,10 +2,10 @@ import { motion } from "framer-motion";
 import { MessageSquare, Rocket, Settings, TrendingUp } from "lucide-react";
 
 const steps = [
-  { icon: MessageSquare, step: "01", title: "Strategy & Onboarding", desc: "We assess your goals, audience, and learning objectives to design the optimal academy architecture." },
-  { icon: Settings, step: "02", title: "Platform Deployment", desc: "Your white-label platform is configured, branded, and deployed on your domain within days." },
-  { icon: Rocket, step: "03", title: "Academy Setup", desc: "Upload courses, configure certificates, set up payments, and invite your first cohort of learners." },
-  { icon: TrendingUp, step: "04", title: "Launch & Scale", desc: "Go live with confidence. We provide ongoing support as you grow to thousands of learners." },
+  { icon: MessageSquare, step: "01", title: "Stratégie & Intégration", desc: "Nous analysons vos objectifs et votre public pour concevoir l'architecture pédagogique optimale." },
+  { icon: Settings, step: "02", title: "Déploiement de Plateforme", desc: "Votre instance en marque blanche est configurée et lancée sur votre domaine en quelques jours." },
+  { icon: Rocket, step: "03", title: "Configuration Académique", desc: "Importez vos cours, configurez les certificats et invitez votre première cohorte d'apprenants." },
+  { icon: TrendingUp, step: "04", title: "Lancement & Évolution", desc: "Lancez-vous en toute confiance. Nous vous accompagnons dans votre montée en charge et succès." },
 ];
 
 const HowItWorksSection = () => {
@@ -18,9 +18,9 @@ const HowItWorksSection = () => {
           viewport={{ once: true }}
           className="text-center max-w-2xl mx-auto mb-16"
         >
-          <span className="text-sm font-semibold text-accent uppercase tracking-wider">Process</span>
+          <span className="text-sm font-semibold text-accent uppercase tracking-wider">Processus</span>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mt-3 mb-4">
-            From Vision to Launch in Four Steps
+            De votre vision au lancement en quatre étapes
           </h2>
         </motion.div>
 

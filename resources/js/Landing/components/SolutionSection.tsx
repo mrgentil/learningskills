@@ -2,10 +2,10 @@ import { motion } from "framer-motion";
 import { Globe, Palette, Users, Database, Check } from "lucide-react";
 
 const pillars = [
-  { icon: Globe, title: "Your Domain", desc: "Launch on your own custom domain with full SSL." },
-  { icon: Palette, title: "Your Branding", desc: "Colors, logos, and design — entirely yours." },
-  { icon: Users, title: "Your Learners", desc: "Own every relationship and interaction." },
-  { icon: Database, title: "Your Data", desc: "Full data sovereignty, no vendor lock-in." },
+  { icon: Globe, title: "Votre Domaine", desc: "Lancez votre académie sur votre propre nom de domaine avec SSL complet." },
+  { icon: Palette, title: "Votre Branding", desc: "Couleurs, logos et design — entièrement à votre image." },
+  { icon: Users, title: "Vos Apprenants", desc: "Soyez propriétaire de chaque relation et interaction." },
+  { icon: Database, title: "Vos Données", desc: "Souveraineté totale des données, pas de verrouillage fournisseur." },
 ];
 
 const SolutionSection = () => {
@@ -18,16 +18,16 @@ const SolutionSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <span className="text-sm font-semibold text-accent uppercase tracking-wider">The Solution</span>
+            <span className="text-sm font-semibold text-accent uppercase tracking-wider">La Solution</span>
             <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mt-3 mb-4">
-              One Platform. Fully Yours.
+              Une Plateforme. Entièrement la Vôtre.
             </h2>
             <p className="text-muted-foreground text-lg mb-8">
-              A white-label digital academy deployed on your infrastructure, scaled to your ambition, and branded to your identity.
+              Une académie digitale en marque blanche déployée sur votre infrastructure, adaptée à vos ambitions et aux couleurs de votre identité.
             </p>
 
             <div className="space-y-4">
-              {["White-label deployment under your brand", "Hosted on your environment", "Scalable learning infrastructure", "Enterprise-grade security & compliance"].map((item) => (
+              {["Déploiement en marque blanche sous votre marque", "Hébergement sur votre environnement", "Infrastructure d'apprentissage évolutive", "Sécurité et conformité de niveau entreprise"].map((item) => (
                 <div key={item} className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
                     <Check className="w-3 h-3 text-accent" />

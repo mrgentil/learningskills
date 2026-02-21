@@ -2,11 +2,11 @@ import { motion } from "framer-motion";
 import { AlertTriangle, DollarSign, Lock, Puzzle, Eye } from "lucide-react";
 
 const problems = [
-  { icon: Eye, title: "No Brand Identity", desc: "Platforms carry someone else's branding, not yours." },
-  { icon: DollarSign, title: "Growing SaaS Costs", desc: "Monthly fees that scale with every new learner." },
-  { icon: Lock, title: "Limited Customization", desc: "Locked templates that don't match your vision." },
-  { icon: AlertTriangle, title: "No Data Ownership", desc: "Your learner data sits on someone else's servers." },
-  { icon: Puzzle, title: "Fragmented Tools", desc: "Zoom, PDFs, emails — nothing is unified." },
+  { icon: Eye, title: "Identité Diluée", desc: "Les plateformes portent la marque d'un autre, pas la vôtre." },
+  { icon: DollarSign, title: "Coûts SaaS Galopants", desc: "Des frais mensuels qui grimpent avec chaque nouvel apprenant." },
+  { icon: Lock, title: "Personnalisation Limitée", desc: "Des modèles verrouillés qui ne correspondent pas à votre vision." },
+  { icon: AlertTriangle, title: "Souveraineté des Données", desc: "Vos données apprenants résident sur les serveurs d'un tiers." },
+  { icon: Puzzle, title: "Outils Fragmentés", desc: "Zoom, PDFs, emails — rien n'est unifié pour l'apprentissage." },
 ];
 
 const ProblemSection = () => {
@@ -19,12 +19,12 @@ const ProblemSection = () => {
           viewport={{ once: true }}
           className="text-center max-w-2xl mx-auto mb-16"
         >
-          <span className="text-sm font-semibold text-accent uppercase tracking-wider">The Problem</span>
+          <span className="text-sm font-semibold text-accent uppercase tracking-wider">Le Problème</span>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mt-3 mb-4">
-            Why Most Organizations Struggle With Online Training
+            Pourquoi la plupart des organisations peinent avec la formation en ligne
           </h2>
           <p className="text-muted-foreground text-lg">
-            Off-the-shelf platforms create dependency, limit growth, and dilute your brand.
+            Les plateformes standards créent de la dépendance, limitent votre croissance et diluent votre image de marque.
           </p>
         </motion.div>
 

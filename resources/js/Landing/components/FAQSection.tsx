@@ -7,12 +7,12 @@ import {
 import { motion } from "framer-motion";
 
 const faqs = [
-  { q: "Do we own the platform?", a: "Yes. Your academy is deployed as a white-label instance under your brand. You retain full ownership of your data, content, and learner relationships." },
-  { q: "Can we use our own domain?", a: "Absolutely. Your academy launches on your custom domain (e.g., academy.yourorg.com) with full SSL encryption and brand identity." },
-  { q: "Do you provide hosting?", a: "Yes, we provide enterprise-grade hosting with 99.9% uptime SLA, automatic backups, and global CDN distribution for fast loading worldwide." },
-  { q: "Can we migrate from Kajabi or another platform?", a: "Yes. We provide guided migration support to transfer your courses, learner data, and content from any existing platform with minimal downtime." },
-  { q: "Is technical knowledge required?", a: "Not at all. Our platform is designed for non-technical teams. The intuitive course builder and admin dashboard require zero coding skills." },
-  { q: "Can nonprofits apply for special funding or discounts?", a: "Yes, we offer special pricing for registered nonprofits and can assist with grant application documentation for digital transformation funding." },
+  { q: "Sommes-nous propriétaires de la plateforme ?", a: "Oui. Votre académie est déployée comme une instance en marque blanche sous votre marque. Vous conservez la pleine propriété de vos données, de votre contenu et de vos relations avec les apprenants." },
+  { q: "Pouvons-nous utiliser notre propre domaine ?", a: "Absolument. Votre académie est lancée sur votre domaine personnalisé (ex: academie.votreorganisation.com) avec un certificat SSL complet." },
+  { q: "Fournissez-vous l'hébergement ?", a: "Oui, nous fournissons un hébergement de niveau entreprise avec une disponibilité de 99,9 %, des sauvegardes automatiques et une distribution via CDN mondial." },
+  { q: "Pouvons-nous migrer depuis une autre plateforme ?", a: "Oui. Nous offrons un support de migration guidée pour transférer vos cours, vos données apprenants et vos contenus depuis n'importe quelle plateforme existante." },
+  { q: "Des connaissances techniques sont-elles requises ?", a: "Pas du tout. Notre plateforme est conçue pour les équipes non techniques. L'interface intuitive ne nécessite aucune compétence en programmation." },
+  { q: "Proposez-vous des tarifs pour les associations ?", a: "Oui, nous offrons des tarifs spéciaux pour les organisations à but non lucratif et pouvons aider pour les dossiers de subvention de transformation digitale." },
 ];
 
 const FAQSection = () => {
@@ -27,7 +27,7 @@ const FAQSection = () => {
         >
           <span className="text-sm font-semibold text-accent uppercase tracking-wider">FAQ</span>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mt-3 mb-4">
-            Frequently Asked Questions
+            Questions Fréquemment Posées
           </h2>
         </motion.div>
 

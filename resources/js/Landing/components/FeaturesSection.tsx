@@ -5,15 +5,15 @@ import {
 } from "lucide-react";
 
 const features = [
-  { icon: Video, title: "Course Builder", desc: "Create courses with video, PDF, quizzes, and assessments in minutes." },
-  { icon: Radio, title: "Live Classes & Webinars", desc: "Host real-time sessions with integrated scheduling and recording." },
-  { icon: Languages, title: "AI Transcription & Translation", desc: "Auto-transcribe content and translate into multiple languages." },
-  { icon: Award, title: "Certificates & Tracking", desc: "Issue branded certificates and monitor learner progress." },
-  { icon: MessageCircle, title: "Discussion Communities", desc: "Build peer-to-peer learning communities within your academy." },
-  { icon: Globe, title: "Custom Domains", desc: "Launch on your own URL with full SSL and white-label branding." },
-  { icon: CreditCard, title: "Payment Integration", desc: "Monetize courses with Stripe and flexible pricing options." },
-  { icon: BarChart3, title: "Student Analytics", desc: "Deep insights into engagement, completion rates, and ROI." },
-  { icon: FileText, title: "Content Library", desc: "Centralized repository for all learning materials and resources." },
+  { icon: Video, title: "Créateur de Cours", desc: "Créez des cours avec vidéos, PDFs, quiz et évaluations en quelques minutes." },
+  { icon: Radio, title: "Classes en Direct", desc: "Animez des sessions en temps réel avec planification et enregistrement intégrés." },
+  { icon: Languages, title: "IA & Traduction", desc: "Transcrivez automatiquement vos contenus et traduisez-les en plusieurs langues." },
+  { icon: Award, title: "Certificats & Suivi", desc: "Délivrez des certificats à votre image et suivez la progression des apprenants." },
+  { icon: MessageCircle, title: "Communautés", desc: "Favorisez l'apprentissage entre pairs au sein de votre académie digitale." },
+  { icon: Globe, title: "Domaines Personnalisés", desc: "Lancez votre plateforme sur votre propre URL avec SSL complet." },
+  { icon: CreditCard, title: "Paiements Intégrés", desc: "Monétisez vos formations avec Stripe et des options de tarifs flexibles." },
+  { icon: BarChart3, title: "Analyses de Données", desc: "Insights profonds sur l'engagement, les taux de complétion et le ROI." },
+  { icon: FileText, title: "Gestion des Contenus", desc: "Référentiel centralisé pour tous vos supports et ressources pédagogiques." },
 ];
 
 const FeaturesSection = () => {
@@ -26,12 +26,12 @@ const FeaturesSection = () => {
           viewport={{ once: true }}
           className="text-center max-w-2xl mx-auto mb-16"
         >
-          <span className="text-sm font-semibold text-accent uppercase tracking-wider">Features</span>
+          <span className="text-sm font-semibold text-accent uppercase tracking-wider">Fonctionnalités</span>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mt-3 mb-4">
-            Everything You Need to Run a World-Class Academy
+            Tout ce dont vous avez besoin pour une Académie de Classe Mondiale
           </h2>
           <p className="text-muted-foreground text-lg">
-            Purpose-built tools focused on outcomes, not complexity.
+            Des outils conçus pour l'efficacité, pas pour la complexité.
           </p>
         </motion.div>
 

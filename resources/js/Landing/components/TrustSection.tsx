@@ -3,27 +3,27 @@ import { Shield, Clock, Server, Star } from "lucide-react";
 
 const testimonials = [
   {
-    quote: "Launching our own branded academy transformed how we deliver training. Enrollment increased by 300% in the first quarter.",
+    quote: "Lancer notre propre académie a transformé notre mode de formation. Les inscriptions ont augmenté de 300% dès le premier trimestre.",
     author: "Sarah Chen",
-    role: "Director of Learning, Global Health Foundation",
+    role: "Directrice de l'Apprentissage, Global Health Foundation",
   },
   {
-    quote: "The white-label approach means our members see our brand at every touchpoint. It's been a game-changer for professional development.",
-    author: "Marcus Williams",
+    quote: "L'approche en marque blanche signifie que nos membres voient notre marque partout. C'est un saut qualitatif pour notre image.",
+    author: "Marc Williams",
     role: "CEO, National Coaching Association",
   },
   {
-    quote: "We migrated from Kajabi in under two weeks. The platform ownership model has already saved us significant costs.",
+    quote: "Nous avons migré en moins de deux semaines. Le modèle de propriété de la plateforme nous fait déjà réaliser des économies majeures.",
     author: "Elena Rodriguez",
-    role: "VP Operations, TechTrain Institute",
+    role: "VP Opérations, TechTrain Institute",
   },
 ];
 
 const badges = [
-  { icon: Shield, label: "SOC 2 Compliant" },
-  { icon: Server, label: "99.9% Uptime SLA" },
-  { icon: Clock, label: "24/7 Monitoring" },
-  { icon: Star, label: "GDPR Ready" },
+  { icon: Shield, label: "Conforme SOC 2" },
+  { icon: Server, label: "Uptime SLA 99.9%" },
+  { icon: Clock, label: "Monitoring 24/7" },
+  { icon: Star, label: "Prêt pour le RGPD" },
 ];
 
 const TrustSection = () => {
@@ -36,9 +36,9 @@ const TrustSection = () => {
           viewport={{ once: true }}
           className="text-center max-w-2xl mx-auto mb-16"
         >
-          <span className="text-sm font-semibold text-accent uppercase tracking-wider">Trust & Authority</span>
+          <span className="text-sm font-semibold text-accent uppercase tracking-wider">Confiance & Excellence</span>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mt-3 mb-4">
-            Trusted by Forward-Thinking Organizations
+            Approuvé par des organisations visionnaires
           </h2>
         </motion.div>
 

@@ -49,9 +49,9 @@ const HeroSection = () => {
 
             <div className="flex items-center gap-8 mt-10 pt-8 border-t border-primary-foreground/10">
               {[
-                { value: "500+", label: "Organizations" },
-                { value: "1M+", label: "Learners" },
-                { value: "99.9%", label: "Uptime" },
+                { value: "500+", label: "Organisations" },
+                { value: "1M+", label: "Apprenants" },
+                { value: "99.9%", label: "Disponibilité" },
               ].map((stat) => (
                 <div key={stat.label}>
                   <p className="font-display font-bold text-2xl text-primary-foreground">{stat.value}</p>

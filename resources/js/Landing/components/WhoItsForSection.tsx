@@ -2,11 +2,11 @@ import { motion } from "framer-motion";
 import { Heart, GraduationCap, Briefcase, Building2, Users } from "lucide-react";
 
 const segments = [
-  { icon: Heart, title: "Nonprofits", desc: "Train volunteers, educate communities, and scale impact with branded learning programs.", color: "text-destructive" },
-  { icon: GraduationCap, title: "Training Organizations", desc: "Deliver professional development and certification programs under your own academy brand.", color: "text-accent" },
-  { icon: Briefcase, title: "Coaches & Consultants", desc: "Package your expertise into a premium digital academy that reflects your personal brand.", color: "text-primary" },
-  { icon: Building2, title: "Associations", desc: "Provide continuing education and member development through your organization's own platform.", color: "text-accent" },
-  { icon: Users, title: "Businesses", desc: "Onboard employees, upskill teams, and build internal knowledge bases at scale.", color: "text-primary" },
+  { icon: Heart, title: "Associations", desc: "Formez vos bénévoles, sensibilisez le public et démultipliez votre impact social.", color: "text-destructive" },
+  { icon: GraduationCap, title: "Centres de Formation", desc: "Délivrez vos programmes de certification sous votre propre marque académique.", color: "text-accent" },
+  { icon: Briefcase, title: "Coachs & Consultants", desc: "Automatisez votre expertise dans une académie premium qui reflète votre excellence.", color: "text-primary" },
+  { icon: Building2, title: "Organisations Professionnelles", desc: "Proposez de la formation continue à vos membres via votre plateforme dédiée.", color: "text-accent" },
+  { icon: Users, title: "Entreprises", desc: "Intégrez vos employés et montez vos équipes en compétences à grande échelle.", color: "text-primary" },
 ];
 
 const WhoItsForSection = () => {
@@ -19,9 +19,9 @@ const WhoItsForSection = () => {
           viewport={{ once: true }}
           className="text-center max-w-2xl mx-auto mb-16"
         >
-          <span className="text-sm font-semibold text-accent uppercase tracking-wider">Who It's For</span>
+          <span className="text-sm font-semibold text-accent uppercase tracking-wider">Pour Qui ?</span>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mt-3 mb-4">
-            Built for Organizations That Demand More
+            Conçu pour les organisations exigeantes
           </h2>
         </motion.div>
 
