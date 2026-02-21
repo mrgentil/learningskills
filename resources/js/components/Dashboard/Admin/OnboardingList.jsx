@@ -5,8 +5,21 @@ import {
     Archive, MoreVertical, Eye
 } from "lucide-react";
 import axios from "axios";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+
+// Native helper for date formatting in French
+const formatDate = (dateString) => {
+    if (!dateString) return "";
+    try {
+        const date = new Date(dateString);
+        return new Intl.DateTimeFormat('fr-FR', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+        }).format(date);
+    } catch (e) {
+        return dateString;
+    }
+};
 
 const OnboardingList = () => {
     const [requests, setRequests] = useState([]);
@@ -94,7 +107,7 @@ const OnboardingList = () => {
                                         </td>
                                         <td className="px-6 py-4">{getStatusBadge(req.status)}</td>
                                         <td className="px-6 py-4 text-xs text-slate-500">
-                                            {format(new Date(req.created_at), "d MMM yyyy", { locale: fr })}
+                                            {formatDate(req.created_at)}
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <button className="text-slate-400 hover:text-primary"><Eye className="w-4 h-4" /></button>
