@@ -43,7 +43,7 @@ const Topbar = ({ user }) => {
                             <span style={{ fontSize: '14px', fontWeight: 700, color: '#1e293b' }}>{user?.name || 'Utilisateur'}</span>
                             <span className="badge-role">{user?.role || 'Rôle'}</span>
                         </div>
-                        <div className="user-avatar" style={{ background: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                        <div className="user-avatar" style={{ background: 'var(--cbx-navy)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', border: '2px solid var(--cbx-amber)' }}>
                             {user?.name?.charAt(0) || 'U'}
                         </div>
                     </div>

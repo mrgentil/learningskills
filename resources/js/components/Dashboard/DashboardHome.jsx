@@ -58,11 +58,11 @@ const DashboardHome = () => {
                 label: 'Activité',
                 data: stats?.chart_revenue?.data || [],
                 fill: true,
-                backgroundColor: 'rgba(255, 0, 122, 0.1)',
-                borderColor: '#ff007a',
+                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                borderColor: '#f59e0b',
                 tension: 0.4,
                 pointRadius: 4,
-                pointBackgroundColor: '#ff007a',
+                pointBackgroundColor: '#f59e0b',
             },
         ],
     };
@@ -73,7 +73,7 @@ const DashboardHome = () => {
             {
                 label: 'Nouvelles Inscriptions',
                 data: stats?.chart_students?.data || [],
-                backgroundColor: '#2575fc',
+                backgroundColor: '#0f172a',
                 borderRadius: 8,
             },
         ],
@@ -112,7 +112,7 @@ const DashboardHome = () => {
         const studentsText = students_limit != null ? `${students_used} / ${students_limit} étudiants` : `${students_used} étudiants`;
 
         return (
-            <div className="stat-card mb-4" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#fff', border: 'none' }}>
+            <div className="stat-card mb-4" style={{ background: 'var(--cbx-navy)', color: '#fff', border: 'none' }}>
                 <div className="d-flex align-items-center justify-content-between mb-3">
                     <span style={{ fontSize: '12px', opacity: 0.9, textTransform: 'uppercase', fontWeight: 700 }}>Votre plan</span>
                     {license_active && (
@@ -181,7 +181,7 @@ const DashboardHome = () => {
     if (loading) {
         return (
             <div className="fade-in text-center" style={{ padding: '100px 0' }}>
-                <i className="fa fa-spinner fa-spin fa-3x" style={{ color: '#ff007a' }}></i>
+                <i className="fa fa-spinner fa-spin fa-3x" style={{ color: 'var(--cbx-amber)' }}></i>
                 <p style={{ marginTop: '20px', color: '#a0aec0' }}>Chargement du tableau de bord...</p>
             </div>
         );
@@ -279,10 +279,10 @@ const DashboardHome = () => {
                                     <div className="flex-grow-1">
                                         <div style={{ fontWeight: 700, fontSize: '14px' }}>{item.title}</div>
                                         <div className="progress mt-2" style={{ height: 6, borderRadius: 3, width: '100%' }}>
-                                            <div className="progress-bar" style={{ width: `${item.progress}%`, background: 'var(--cbx-pink)' }}></div>
+                                            <div className="progress-bar" style={{ width: `${item.progress}%`, background: 'var(--cbx-amber)' }}></div>
                                         </div>
                                     </div>
-                                    <div style={{ marginLeft: 15, fontWeight: 800, fontSize: '13px', color: 'var(--cbx-pink)' }}>
+                                    <div style={{ marginLeft: 15, fontWeight: 800, fontSize: '13px', color: 'var(--cbx-amber)' }}>
                                         {item.progress}%
                                     </div>
                                 </div>
@@ -370,7 +370,7 @@ const DashboardHome = () => {
                     {renderRecentActivity()}
                 </div>
                 <div className="col-lg-4 mb-4">
-                    <div className="quick-tips-card h-100 d-flex flex-column">
+                    <div className="quick-tips-card h-100 d-flex flex-column" style={{ background: 'var(--cbx-navy)' }}>
                         <div className="d-flex align-items-center gap-2 mb-4">
                             <i className="fa fa-lightbulb-o fa-2x"></i>
                             <h4 style={{ fontWeight: 700, margin: 0 }}>Conseils Expert</h4>
@@ -389,7 +389,7 @@ const DashboardHome = () => {
                                 <span>Invitez des instructeurs pour enrichir votre catalogue.</span>
                             </li>
                         </ul>
-                        <button className="btn btn-light w-100 py-3 mt-auto" style={{ borderRadius: '12px', fontWeight: 700, color: '#2575fc' }}>
+                        <button className="btn btn-light w-100 py-3 mt-auto" style={{ borderRadius: '12px', fontWeight: 700, color: 'var(--cbx-navy)' }}>
                             En savoir plus
                         </button>
                     </div>

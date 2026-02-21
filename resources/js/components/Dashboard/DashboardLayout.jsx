@@ -11,11 +11,11 @@ const DashboardContent = ({ children }) => {
         return (
             <div style={{ display: 'flex', height: '100vh', width: '100vw', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
                 <div className="text-center">
-                    <div className="spinner-border text-primary mb-3" role="status" style={{ color: '#ff007a' }}>
+                    <div className="spinner-border mb-3" role="status" style={{ color: 'var(--cbx-navy)', width: '3rem', height: '3rem' }}>
                         <span className="sr-only">Chargement...</span>
                     </div>
-                    <h3 className="cbx-logo" style={{ fontSize: '28px' }}>Learning<span>Skills</span></h3>
-                    <p style={{ color: '#718096', fontWeight: 600 }}>Préparation de votre espace...</p>
+                    <h3 className="cbx-logo" style={{ fontSize: '32px' }}>Learning<span>Skills</span></h3>
+                    <p style={{ color: '#64748b', fontWeight: 600, letterSpacing: '0.5px' }}>Préparation de votre espace...</p>
                 </div>
             </div>
         );

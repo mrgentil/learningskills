@@ -91,7 +91,7 @@ const StudentList = () => {
                                     <td style={{ padding: '16px 20px', fontWeight: 700 }}>{s.name || 'Sans nom'}</td>
                                     <td>{s.email}</td>
                                     <td className="text-center">
-                                        <span className="badge px-2 py-1" style={{ background: '#eef2ff', color: '#4338ca', fontWeight: 700 }}>
+                                        <span className="badge px-2 py-1" style={{ background: 'var(--cbx-amber-soft)', color: 'var(--cbx-amber)', fontWeight: 700 }}>
                                             {s.courses_count || 0}
                                         </span>
                                     </td>
@@ -114,7 +114,7 @@ const StudentList = () => {
                         <div className="modal-content border-0 shadow-lg" style={{ borderRadius: 16 }}>
                             <div className="modal-header border-0 pb-0">
                                 <h5 className="modal-title font-weight-bold">
-                                    <i className="fa fa-user mr-2 text-primary"></i>
+                                    <i className="fa fa-user mr-2" style={{ color: 'var(--cbx-amber)' }}></i>
                                     Profil étudiant
                                 </h5>
                                 <button type="button" className="close" onClick={closeProfile}><span>&times;</span></button>
@@ -125,7 +125,7 @@ const StudentList = () => {
                                 ) : (
                                     <>
                                         <div className="d-flex align-items-center mb-4 pb-3" style={{ borderBottom: '1px solid #f1f5f9' }}>
-                                            <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mr-3" style={{ width: 56, height: 56 }}>
+                                            <div className="rounded-circle d-flex align-items-center justify-content-center mr-3" style={{ width: 56, height: 56, background: 'var(--cbx-navy)', color: 'white' }}>
                                                 <i className="fa fa-user fa-2x"></i>
                                             </div>
                                             <div>
@@ -155,10 +155,10 @@ const StudentList = () => {
                                                             </div>
                                                         </div>
                                                         <div className="text-right">
-                                                            <div className="progress" style={{ width: 80, height: 8, borderRadius: 4 }}>
-                                                                <div className="progress-bar bg-primary" style={{ width: `${e.progress_percent || 0}%` }}></div>
+                                                            <div className="progress" style={{ width: 80, height: 8, borderRadius: 4, background: '#f1f5f9' }}>
+                                                                <div className="progress-bar" style={{ width: `${e.progress_percent || 0}%`, background: 'var(--cbx-amber)' }}></div>
                                                             </div>
-                                                            <span className="small font-weight-bold">{e.progress_percent || 0} %</span>
+                                                            <span className="small font-weight-bold" style={{ color: 'var(--cbx-navy-light)' }}>{e.progress_percent || 0} %</span>
                                                         </div>
                                                     </div>
                                                 ))}

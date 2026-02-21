@@ -35,7 +35,7 @@ const AcademyList = () => {
     if (loading && tenants.length === 0) {
         return (
             <div className="text-center p-5">
-                <i className="fa fa-spin fa-spinner fa-3x" style={{ color: '#ff007a' }}></i>
+                <i className="fa fa-spin fa-spinner fa-3x" style={{ color: 'var(--cbx-navy)' }}></i>
                 <p className="mt-3">Chargement des académies...</p>
             </div>
         );
@@ -87,8 +87,8 @@ const AcademyList = () => {
                                     <td><span className="badge-role" style={{ background: '#e2e8f0', color: '#475569' }}>{t.plan_name}</span></td>
                                     <td className="text-center">
                                         <div style={{ fontSize: '13px' }}>
-                                            <span className="mr-2"><i className="fa fa-book mr-1" style={{ color: '#2575fc' }}></i>{t.courses_count}</span>
-                                            <span><i className="fa fa-graduation-cap mr-1" style={{ color: '#6a11cb' }}></i>{t.students_count}</span>
+                                            <span className="mr-2"><i className="fa fa-book mr-1" style={{ color: 'var(--cbx-navy-light)' }}></i>{t.courses_count}</span>
+                                            <span><i className="fa fa-graduation-cap mr-1" style={{ color: 'var(--cbx-amber)' }}></i>{t.students_count}</span>
                                         </div>
                                     </td>
                                     <td>

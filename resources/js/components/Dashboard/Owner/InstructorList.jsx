@@ -92,7 +92,7 @@ const InstructorList = () => {
 
     if (loading) return (
         <div className="text-center p-5">
-            <i className="fa fa-circle-o-notch fa-spin fa-3x text-primary"></i>
+            <i className="fa fa-circle-o-notch fa-spin fa-3x" style={{ color: 'var(--cbx-navy)' }}></i>
             <p className="mt-3 text-muted">Chargement de l'équipe...</p>
         </div>
     );
@@ -110,7 +110,7 @@ const InstructorList = () => {
                 <div className="col-lg-8">
                     <div className="card-modern shadow-soft border-0 mb-4">
                         <div className="card-body-modern p-4">
-                            <h5 className="font-weight-bold mb-4 text-dark"><i className="fa fa-users mr-2 text-primary"></i> Équipe Actuelle</h5>
+                            <h5 className="font-weight-bold mb-4 text-dark"><i className="fa fa-users mr-2" style={{ color: 'var(--cbx-navy)' }}></i> Équipe Actuelle</h5>
 
                             {message && <div className={`alert alert-${message.type} mb-4`}>{message.text}</div>}
                             {error && <div className="alert alert-danger mb-4">{error}</div>}
@@ -131,7 +131,7 @@ const InstructorList = () => {
                                             <tr key={instructor.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
                                                 <td className="pl-3 py-3">
                                                     <div className="d-flex align-items-center">
-                                                        <div className="user-avatar-sm mr-3 shadow-sm" style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#ff007a', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold' }}>
+                                                        <div className="user-avatar-sm mr-3 shadow-sm" style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--cbx-navy)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold' }}>
                                                             {instructor.name.charAt(0)}
                                                         </div>
                                                         <span className="font-weight-bold text-dark">{instructor.name}</span>
@@ -139,7 +139,7 @@ const InstructorList = () => {
                                                 </td>
                                                 <td className="text-secondary">{instructor.email}</td>
                                                 <td>
-                                                    <span className={`badge py-2 px-3 rounded-pill text-uppercase ${instructor.role === 'owner' ? 'bg-warning text-dark' : 'bg-info text-white'}`} style={{ fontSize: '10px', letterSpacing: '0.5px' }}>
+                                                    <span className={`badge py-2 px-3 rounded-pill text-uppercase ${instructor.role === 'owner' ? '' : ''}`} style={{ fontSize: '10px', letterSpacing: '1px', background: instructor.role === 'owner' ? 'var(--cbx-amber-soft)' : '#f1f5f9', color: instructor.role === 'owner' ? 'var(--cbx-amber)' : '#64748b', border: instructor.role === 'owner' ? '1px solid var(--cbx-amber)' : '1px solid #e2e8f0', fontWeight: 800 }}>
                                                         {instructor.role === 'owner' ? 'Propriétaire' : 'Instructeur'}
                                                     </span>
                                                 </td>
@@ -176,7 +176,7 @@ const InstructorList = () => {
                 <div className="col-lg-4">
                     <div className="card-modern shadow-soft border-0 sticky-top" style={{ top: '20px', zIndex: 1 }}>
                         <div className="card-body-modern p-4">
-                            <h5 className="font-weight-bold mb-4 text-dark"><i className="fa fa-envelope-o mr-2 text-primary"></i> Inviter un Instructeur</h5>
+                            <h5 className="font-weight-bold mb-4 text-dark"><i className="fa fa-envelope-o mr-2" style={{ color: 'var(--cbx-amber)' }}></i> Inviter un Instructeur</h5>
                             <form onSubmit={handleInvite}>
                                 <div className="form-group mb-3">
                                     <label className="form-label-modern font-weight-bold small text-uppercase text-muted">Nom Complet</label>

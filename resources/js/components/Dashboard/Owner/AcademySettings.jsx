@@ -201,7 +201,7 @@ const AcademySettings = () => {
 
     if (loading) return (
         <div className="text-center p-5">
-            <i className="fa fa-circle-o-notch fa-spin fa-3x text-primary"></i>
+            <i className="fa fa-circle-o-notch fa-spin fa-3x" style={{ color: 'var(--cbx-navy)' }}></i>
             <p className="mt-3 text-muted">Chargement de vos paramètres...</p>
         </div>
     );
@@ -209,12 +209,12 @@ const AcademySettings = () => {
     if (error && !settings.slug) {
         return (
             <div className="fade-in">
-                <div className="alert alert-warning d-flex align-items-center" style={{ borderRadius: 12 }}>
-                    <i className="fa fa-exclamation-triangle fa-2x mr-3" style={{ color: '#f59e0b' }}></i>
+                <div className="alert alert-warning d-flex align-items-center" style={{ borderRadius: 12, border: '1px solid var(--cbx-amber)', background: 'var(--cbx-amber-soft)' }}>
+                    <i className="fa fa-exclamation-triangle fa-2x mr-3" style={{ color: 'var(--cbx-amber)' }}></i>
                     <div>
                         <strong>Académie non trouvée</strong>
                         <p className="mb-0 mt-1">{error}</p>
-                        <a href="/#cbx-pricing" className="btn btn-sm btn-warning mt-3">Créer une académie</a>
+                        <a href="/#cbx-pricing" className="btn btn-sm btn-outline-dark mt-3" style={{ borderColor: 'var(--cbx-amber)', color: 'var(--cbx-navy)' }}>Créer une académie</a>
                     </div>
                 </div>
             </div>
@@ -430,12 +430,12 @@ const AcademySettings = () => {
                                 </div>
 
                                 <hr className="my-5" />
-                                <h4 className="mb-4 text-warning"><i className="fa fa-magic mr-2"></i> Personnalisation Bannière (Slider Hero)</h4>
+                                <h4 className="mb-4" style={{ color: 'var(--cbx-amber)' }}><i className="fa fa-magic mr-2"></i> Personnalisation Bannière (Slider Hero)</h4>
 
                                 <div className="card bg-light border-0 mb-4 shadow-sm">
                                     <div className="card-body p-4">
                                         <h6 className="font-weight-bold mb-3 d-flex align-items-center">
-                                            <span className="badge badge-warning mr-2">2</span> Slide 2: Formations / Catalogue
+                                            <span className="badge mr-2" style={{ background: 'var(--cbx-amber)', color: '#0f172a' }}>2</span> Slide 2: Formations / Catalogue
                                         </h6>
                                         <div className="form-group mb-3">
                                             <label className="small font-weight-bold">Titre Slide 2</label>
@@ -451,7 +451,7 @@ const AcademySettings = () => {
                                 <div className="card bg-light border-0 mb-4 shadow-sm">
                                     <div className="card-body p-4">
                                         <h6 className="font-weight-bold mb-3 d-flex align-items-center">
-                                            <span className="badge badge-warning mr-2">3</span> Slide 3: Certification / Confiance
+                                            <span className="badge mr-2" style={{ background: 'var(--cbx-amber)', color: '#0f172a' }}>3</span> Slide 3: Certification / Confiance
                                         </h6>
                                         <div className="form-group mb-3">
                                             <label className="small font-weight-bold">Titre Slide 3</label>
@@ -465,7 +465,7 @@ const AcademySettings = () => {
                                 </div>
 
                                 <hr className="my-5" />
-                                <h4 className="mb-4 text-info"><i className="fa fa-th-list mr-2"></i> Section Caractéristiques (3 Badges)</h4>
+                                <h4 className="mb-4" style={{ color: 'var(--cbx-navy-light)' }}><i className="fa fa-th-list mr-2"></i> Section Caractéristiques (3 Badges)</h4>
 
                                 <div className="row">
                                     <div className="col-md-4">
@@ -507,7 +507,7 @@ const AcademySettings = () => {
                                 </div>
 
                                 <hr className="my-5" />
-                                <h4 className="mb-4 text-success"><i className="fa fa-chart-bar mr-2"></i> Statistiques & Chiffres</h4>
+                                <h4 className="mb-4" style={{ color: 'var(--cbx-navy)' }}><i className="fa fa-chart-bar mr-2"></i> Statistiques & Chiffres</h4>
                                 <div className="row">
                                     <div className="col-md-4">
                                         <div className="form-group">
@@ -640,9 +640,9 @@ const AcademySettings = () => {
                 </div>
 
                 <div className="col-lg-4">
-                    <div className="card-modern bg-gradient-primary text-white mb-4 border-0 shadow-lg">
+                    <div className="card-modern text-white mb-4 border-0 shadow-lg" style={{ background: 'linear-gradient(135deg, var(--cbx-navy) 0%, var(--cbx-navy-light) 100%)' }}>
                         <div className="card-body-modern p-4">
-                            <h5 className="font-weight-bold mb-3"><i className="fa fa-rocket mr-2"></i> Conseil Pro</h5>
+                            <h5 className="font-weight-bold mb-3"><i className="fa fa-rocket mr-2" style={{ color: 'var(--cbx-amber)' }}></i> Conseil Pro</h5>
                             <p className="mb-0" style={{ fontSize: '15px', opacity: 0.95, lineHeight: 1.6 }}>
                                 Une description claire et engageante augmente vos chances de conversion. N'hésitez pas à mettre en avant votre expertise !
                             </p>

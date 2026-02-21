@@ -50,11 +50,18 @@ const Sidebar = ({ role }) => {
     return (
         <aside className="sidebar">
             <div className="sidebar-header">
-                <h3 className="cbx-logo" style={{ fontSize: '24px', letterSpacing: '-1px' }}>Learning<span>Skills</span></h3>
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-cbx-amber flex items-center justify-center">
+                        <span className="font-display font-bold text-navy text-sm">LS</span>
+                    </div>
+                    <h3 className="font-display font-bold text-white m-0" style={{ fontSize: '20px', letterSpacing: '-0.5px' }}>
+                        Learning<span style={{ color: 'var(--cbx-amber)' }}>Skills</span>
+                    </h3>
+                </div>
             </div>
             <div className="sidebar-menu">
                 <div style={{ padding: '0 15px 20px' }}>
-                    <a href={publicLink} target="_blank" className="btn-modern btn-primary-modern w-100 justify-content-center" style={{ fontSize: '13px', padding: '10px 15px', textDecoration: 'none' }}>
+                    <a href={publicLink} target="_blank" className="btn-modern btn-accent-modern w-100 justify-content-center" style={{ fontSize: '13px', padding: '10px 15px', textDecoration: 'none' }}>
                         <i className="fa fa-external-link mr-2"></i> Voir mon Académie
                     </a>
                 </div>

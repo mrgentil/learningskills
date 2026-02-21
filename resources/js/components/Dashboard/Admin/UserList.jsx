@@ -34,10 +34,10 @@ const UserList = () => {
 
     const getRoleLabel = (role) => {
         const roles = {
-            super_admin: { label: 'Super Admin', color: '#ff007a', bg: 'rgba(255, 0, 122, 0.1)' },
-            owner: { label: 'Propriétaire', color: '#6a11cb', bg: 'rgba(106, 17, 203, 0.1)' },
-            instructor: { label: 'Instructeur', color: '#2575fc', bg: 'rgba(37, 117, 252, 0.1)' },
-            student: { label: 'Étudiant', color: '#48bb78', bg: 'rgba(72, 187, 120, 0.1)' },
+            super_admin: { label: 'Super Admin', color: 'var(--cbx-navy)', bg: 'rgba(15, 23, 42, 0.1)' },
+            owner: { label: 'Propriétaire', color: 'var(--cbx-amber)', bg: 'var(--cbx-amber-soft)' },
+            instructor: { label: 'Instructeur', color: '#475569', bg: '#f1f5f9' },
+            student: { label: 'Étudiant', color: '#059669', bg: '#ecfdf5' },
         };
         return roles[role] || { label: role, color: '#718096', bg: '#f7fafc' };
     };
@@ -45,7 +45,7 @@ const UserList = () => {
     if (loading && users.length === 0) {
         return (
             <div className="text-center p-5">
-                <i className="fa fa-spin fa-spinner fa-3x" style={{ color: '#ff007a' }}></i>
+                <i className="fa fa-spin fa-spinner fa-3x" style={{ color: 'var(--cbx-navy)' }}></i>
                 <p className="mt-3">Chargement des utilisateurs...</p>
             </div>
         );

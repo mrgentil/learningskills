@@ -48,7 +48,7 @@ const CourseList = () => {
                 setQuota(data.quota || null);
                 setCanCreateCourse(data.can_create_course !== false);
             }
-        } catch (_) {}
+        } catch (_) { }
     };
 
     const toggleSort = (field) => {
@@ -90,7 +90,7 @@ const CourseList = () => {
 
     const SortIcon = ({ field }) => {
         if (sortBy !== field) return <i className="fa fa-sort text-muted ml-1" style={{ opacity: 0.5 }} />;
-        return <i className={`fa fa-sort-${sortDir === 'asc' ? 'up' : 'down'} text-primary ml-1`} />;
+        return <i className={`fa fa-sort-${sortDir === 'asc' ? 'up' : 'down'} ml-1`} style={{ color: 'var(--cbx-amber)' }} />;
     };
 
     if (loading) return <div className="text-center p-5"><i className="fa fa-spin fa-spinner fa-2x"></i></div>;
@@ -98,8 +98,8 @@ const CourseList = () => {
     if (error) {
         return (
             <div className="fade-in">
-                <div className="alert alert-warning d-flex align-items-center" style={{ borderRadius: 12 }}>
-                    <i className="fa fa-exclamation-triangle fa-2x mr-3" style={{ color: '#f59e0b' }}></i>
+                <div className="alert alert-warning d-flex align-items-center" style={{ borderRadius: 12, border: '1px solid var(--cbx-amber)', background: 'var(--cbx-amber-soft)' }}>
+                    <i className="fa fa-exclamation-triangle fa-2x mr-3" style={{ color: 'var(--cbx-amber)' }}></i>
                     <div>
                         <strong>Académie non trouvée</strong>
                         <p className="mb-0 mt-1">{error}</p>
@@ -309,13 +309,13 @@ const CourseList = () => {
 
             <style>{`
                 .courses-table thead { background: #f8fafc; }
-                .courses-table thead th { padding: 14px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; font-weight: 800; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+                .courses-table thead th { padding: 14px 20px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-weight: 800; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
                 .courses-table tbody td { padding: 14px 20px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
-                .courses-table tbody tr:hover { background: #f8fafc; }
+                .courses-table tbody tr:hover { background: #fcfdfe; }
                 .courses-table .clickable { cursor: pointer; user-select: none; }
-                .courses-table .clickable:hover { color: #ff007a; }
+                .courses-table .clickable:hover { color: var(--cbx-amber); }
                 .courses-pagination .pagination .page-link { border-radius: 8px; margin: 0 2px; border: 1px solid #e2e8f0; color: #475569; }
-                .courses-pagination .pagination .page-item.active .page-link { background: #ff007a; border-color: #ff007a; color: #fff; }
+                .courses-pagination .pagination .page-item.active .page-link { background: var(--cbx-amber); border-color: var(--cbx-amber); color: #0f172a; font-weight: 700; }
             `}</style>
         </div>
     );

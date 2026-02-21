@@ -365,11 +365,11 @@ const CourseBuilder = () => {
                                                 <div key={lesson.id} className="list-group-item d-flex justify-content-between align-items-center lesson-row-builder">
                                                     <div className="d-flex align-items-center">
                                                         <div className="lesson-icon-indicator mr-3">
-                                                            <i className={`fa ${lesson.type === 'video' ? 'fa-play-circle text-danger' : 'fa-align-left text-info'}`}></i>
+                                                            <i className={`fa ${lesson.type === 'video' ? 'fa-play-circle text-navy' : 'fa-align-left text-muted'}`}></i>
                                                         </div>
                                                         <div>
-                                                            <span className="font-weight-bold d-block">{lesson.title}</span>
-                                                            <span className="small text-muted text-uppercase">{lesson.type}</span>
+                                                            <span className="font-weight-bold d-block" style={{ color: 'var(--cbx-navy)' }}>{lesson.title}</span>
+                                                            <span className="small text-muted text-uppercase" style={{ letterSpacing: '0.5px', fontSize: '10px' }}>{lesson.type}</span>
                                                         </div>
                                                     </div>
                                                     <div className="d-flex gap-2">
@@ -454,7 +454,7 @@ const CourseBuilder = () => {
                                         <label className="form-label-modern">URL de la Vidéo (YouTube, Vimeo, ou MP4)</label>
                                         <div className="input-group">
                                             <div className="input-group-prepend">
-                                                <span className="input-group-text bg-white border-2 border-right-0"><i className="fa fa-video-camera text-danger"></i></span>
+                                                <span className="input-group-text bg-white border-2 border-right-0"><i className="fa fa-video-camera" style={{ color: 'var(--cbx-navy)' }}></i></span>
                                             </div>
                                             <input
                                                 type="text"
